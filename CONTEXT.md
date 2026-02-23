@@ -1,4 +1,4 @@
 # Project Context
 
-Completed: T2.2 added RLS policies + hardened grants
-Next: T3.0 Edge Functions wrapper + Storage signed URL design OR Frontend auth skeleton
+Completed: T3.0 auth + profile sync + role routing
+Next: T3.1 Edge Functions for push + T3.2 Storage signed URL OR T4 dashboards
