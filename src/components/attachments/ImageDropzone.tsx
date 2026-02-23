@@ -1,20 +1,28 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { UploadCloud, X, Loader2 } from 'lucide-react';
 import { uploadDocumentAttachment } from '../../features/attachments/attachmentsApi';
 
 interface ImageDropzoneProps {
-    documentId: string;
+    documentId?: string; // Optional if we just want to select
     onSuccess?: () => void;
+    onChange?: (file: File | null) => void;
+    hideUploadButton?: boolean;
 }
 
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB limit
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
-export const ImageDropzone: React.FC<ImageDropzoneProps> = ({ documentId, onSuccess }) => {
+export const ImageDropzone: React.FC<ImageDropzoneProps> = ({ documentId, onSuccess, onChange, hideUploadButton }) => {
     const [file, setFile] = useState<File | null>(null);
     const [errorMsg, setErrorMsg] = useState('');
     const [uploading, setUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (onChange) {
+            onChange(file);
+        }
+    }, [file, onChange]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setErrorMsg('');
@@ -39,7 +47,7 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({ documentId, onSucc
     };
 
     const handleUpload = async () => {
-        if (!file || uploading) return;
+        if (!file || uploading || !documentId) return;
         setUploading(true);
         setErrorMsg('');
 
@@ -56,7 +64,7 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({ documentId, onSucc
     };
 
     return (
-        <div className="w-full max-w-lg p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+        <div className="w-full p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
             <h3 className="font-medium text-gray-800 mb-3">Sertakan Attachment (Imej)</h3>
 
             {!file ? (
@@ -83,7 +91,10 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({ documentId, onSucc
                     <button
                         type="button"
                         disabled={uploading}
-                        onClick={() => setFile(null)}
+                        onClick={() => {
+                            setFile(null);
+                            if (fileInputRef.current) fileInputRef.current.value = '';
+                        }}
                         className="text-slate-400 hover:text-red-500 rounded-full"
                     >
                         <X size={20} />
@@ -93,22 +104,24 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({ documentId, onSucc
 
             {errorMsg && <p className="text-red-500 text-xs mt-2">{errorMsg}</p>}
 
-            <div className="mt-4 flex justify-end">
-                <button
-                    onClick={handleUpload}
-                    disabled={!file || uploading}
-                    className="flex flex-row items-center px-4 py-2 bg-blue-600 text-white rounded shadow-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm font-medium"
-                >
-                    {uploading ? (
-                        <>
-                            <Loader2 className="animate-spin w-4 h-4 mr-2" />
-                            Menyimpan...
-                        </>
-                    ) : (
-                        'Simpan'
-                    )}
-                </button>
-            </div>
+            {!hideUploadButton && (
+                <div className="mt-4 flex justify-end">
+                    <button
+                        onClick={handleUpload}
+                        disabled={!file || uploading || !documentId}
+                        className="flex flex-row items-center px-4 py-2 bg-blue-600 text-white rounded shadow-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm font-medium"
+                    >
+                        {uploading ? (
+                            <>
+                                <Loader2 className="animate-spin w-4 h-4 mr-2" />
+                                Menyimpan...
+                            </>
+                        ) : (
+                            'Simpan'
+                        )}
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
