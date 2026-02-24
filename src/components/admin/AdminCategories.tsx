@@ -28,12 +28,13 @@ export const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, us
     const startEdit = (cat: any) => {
         setIsCreating(false);
         setIsEditingId(cat.id);
+        const route = Array.isArray(cat.routing) ? cat.routing[0] : cat.routing;
         setEditForm({
             name: cat.name,
             description: cat.description || '',
             is_active: cat.is_active,
-            verifierId: cat.routing?.[0]?.default_verifier_id || '',
-            approverId: cat.routing?.[0]?.default_approver_id || ''
+            verifierId: route?.default_verifier_id || '',
+            approverId: route?.default_approver_id || ''
         });
         setError('');
     };
@@ -155,6 +156,7 @@ export const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, us
 
                         {categories.map(cat => {
                             const isEditing = isEditingId === cat.id;
+                            const route = Array.isArray(cat.routing) ? cat.routing[0] : cat.routing;
                             return (
                                 <div key={cat.id} className="flex gap-4 px-4 py-4 items-start hover:bg-slate-50 transition-colors">
                                     <div className="flex-[1.5] min-w-0 flex flex-col gap-2">
@@ -192,7 +194,7 @@ export const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, us
                                                 {verifierUsers.map(u => <option key={u.id} value={u.id}>{u.full_name}</option>)}
                                             </select>
                                         ) : (
-                                            <span className="text-slate-800 break-words">{cat.routing?.[0]?.verifier?.full_name || '-'}</span>
+                                            <span className="text-slate-800 break-words">{route?.verifier?.full_name || '-'}</span>
                                         )}
                                     </div>
 
@@ -207,7 +209,7 @@ export const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, us
                                                 {approverUsers.map(u => <option key={u.id} value={u.id}>{u.full_name}</option>)}
                                             </select>
                                         ) : (
-                                            <span className="text-slate-800 break-words">{cat.routing?.[0]?.approver?.full_name || '-'}</span>
+                                            <span className="text-slate-800 break-words">{route?.approver?.full_name || '-'}</span>
                                         )}
                                     </div>
 

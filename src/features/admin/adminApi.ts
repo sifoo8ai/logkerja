@@ -145,11 +145,11 @@ export async function updateCategory(id: string, name: string, desc: string, isA
 
     const { error: routeError } = await supabase
         .from('category_routing')
-        .update({
+        .upsert({
+            category_id: id,
             default_verifier_id: verifierId,
             default_approver_id: approverId
-        })
-        .eq('category_id', id);
+        }, { onConflict: 'category_id' });
 
     if (routeError) throw routeError;
     return true;

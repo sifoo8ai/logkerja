@@ -1,4 +1,4 @@
 # Project Context
 
-Completed: BUGFIX-ADMIN-04 labels + routing grants
-Next: continue setup categories/routing
+Completed: BUGFIX-ADMIN-05 routing save persists + display fixed
+Next: continue workflow testing end-to-end
