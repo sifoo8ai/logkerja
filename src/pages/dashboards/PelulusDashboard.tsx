@@ -49,7 +49,7 @@ const PelulusDashboard: React.FC = () => {
                 setUserId(data.user.id);
                 await loadData(data.user.id);
 
-                // Setup realtime subscription scoped to assigned_approver
+                // Setup realtime subscription scoped to approver_id
                 subscription = supabase.channel('pelulus-docs')
                     .on(
                         'postgres_changes',
@@ -57,7 +57,7 @@ const PelulusDashboard: React.FC = () => {
                             event: '*',
                             schema: 'public',
                             table: 'documents',
-                            filter: `assigned_approver=eq.${data.user.id}`
+                            filter: `approver_id=eq.${data.user.id}`
                         },
                         () => {
                             // Soft reload data on changes
@@ -133,8 +133,8 @@ const PelulusDashboard: React.FC = () => {
                     <button
                         onClick={() => setActiveTab('tindakan')}
                         className={`flex items-center whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'tindakan'
-                                ? 'border-blue-600 text-blue-600'
-                                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                            ? 'border-blue-600 text-blue-600'
+                            : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                             }`}
                     >
                         <LayoutList size={18} className="mr-2" />
@@ -148,8 +148,8 @@ const PelulusDashboard: React.FC = () => {
                     <button
                         onClick={() => setActiveTab('sejarah')}
                         className={`flex items-center whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'sejarah'
-                                ? 'border-blue-600 text-blue-600'
-                                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                            ? 'border-blue-600 text-blue-600'
+                            : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                             }`}
                     >
                         <History size={18} className="mr-2" />

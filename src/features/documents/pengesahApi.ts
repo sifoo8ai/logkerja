@@ -24,7 +24,7 @@ export async function fetchAssignedDocuments(userId: string): Promise<DocumentRo
             category:document_categories(id, name),
             creator:profiles!documents_creator_id_fkey(full_name)
         `)
-        .eq('assigned_verifier', userId)
+        .eq('verifier_id', userId)
         .eq('current_status', 'PENDING_VERIFIER')
         .order('created_at', { ascending: true });
 
@@ -39,7 +39,7 @@ export async function fetchPengesahHistory(userId: string) {
             id, action, created_at, note,
             document:documents(id, reference_no, current_status, category:document_categories(name))
         `)
-        .eq('actor_user_id', userId)
+        .eq('actor_id', userId)
         .in('action', ['APPROVE', 'REJECT'])
         .order('created_at', { ascending: false });
 

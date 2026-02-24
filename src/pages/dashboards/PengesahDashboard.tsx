@@ -48,7 +48,7 @@ const PengesahDashboard: React.FC = () => {
                 setUserId(data.user.id);
                 await loadData(data.user.id);
 
-                // Setup realtime subscription scoped to assigned_verifier
+                // Setup realtime subscription scoped to verifier_id
                 subscription = supabase.channel('pengesah-docs')
                     .on(
                         'postgres_changes',
@@ -56,7 +56,7 @@ const PengesahDashboard: React.FC = () => {
                             event: '*',
                             schema: 'public',
                             table: 'documents',
-                            filter: `assigned_verifier=eq.${data.user.id}`
+                            filter: `verifier_id=eq.${data.user.id}`
                         },
                         () => {
                             // Soft reload data on changes
@@ -132,8 +132,8 @@ const PengesahDashboard: React.FC = () => {
                     <button
                         onClick={() => setActiveTab('tindakan')}
                         className={`flex items-center whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'tindakan'
-                                ? 'border-blue-600 text-blue-600'
-                                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                            ? 'border-blue-600 text-blue-600'
+                            : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                             }`}
                     >
                         <LayoutList size={18} className="mr-2" />
@@ -147,8 +147,8 @@ const PengesahDashboard: React.FC = () => {
                     <button
                         onClick={() => setActiveTab('sejarah')}
                         className={`flex items-center whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'sejarah'
-                                ? 'border-blue-600 text-blue-600'
-                                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                            ? 'border-blue-600 text-blue-600'
+                            : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                             }`}
                     >
                         <History size={18} className="mr-2" />
