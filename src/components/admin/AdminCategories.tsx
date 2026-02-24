@@ -92,20 +92,18 @@ export const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, us
             <div className="p-4 overflow-x-auto">
                 {error && <p className="mb-4 text-sm text-red-600 bg-red-50 p-3 rounded-md border border-red-200">{error}</p>}
 
-                <table className="w-full text-left text-sm whitespace-nowrap border-collapse">
-                    <thead className="bg-slate-50 text-slate-600 font-medium">
-                        <tr>
-                            <th className="px-4 py-3 border-b border-slate-200">Nama Kategori</th>
-                            <th className="px-4 py-3 border-b border-slate-200">Routing (Penyemak)</th>
-                            <th className="px-4 py-3 border-b border-slate-200">Routing (Pelulus)</th>
-                            <th className="px-4 py-3 border-b border-slate-200">Status</th>
-                            <th className="px-4 py-3 border-b border-slate-200">Tindakan</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 text-slate-700">
+                <div className="w-full text-left text-sm min-w-[900px] border-t border-slate-200">
+                    <div className="bg-slate-50 text-slate-600 font-medium flex gap-4 px-4 py-3 border-b border-slate-200">
+                        <div className="flex-[1.5] min-w-0">Nama Kategori</div>
+                        <div className="flex-1 min-w-0">Routing (Penyemak)</div>
+                        <div className="flex-1 min-w-0">Routing (Pelulus)</div>
+                        <div className="w-24 shrink-0">Status</div>
+                        <div className="w-24 shrink-0">Tindakan</div>
+                    </div>
+                    <div className="divide-y divide-slate-100 text-slate-700">
                         {isCreating && (
-                            <tr className="bg-blue-50/50">
-                                <td className="px-4 py-4 min-w-[200px]">
+                            <div className="bg-blue-50/50 flex gap-4 px-4 py-4 items-start">
+                                <div className="flex-[1.5] min-w-0 flex flex-col gap-2">
                                     <input
                                         type="text"
                                         placeholder="Nama kategori"
@@ -118,20 +116,20 @@ export const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, us
                                         placeholder="Description (Optional)"
                                         value={editForm.description}
                                         onChange={e => setEditForm({ ...editForm, description: e.target.value })}
-                                        className="w-full mt-2 p-2 border border-slate-300 rounded text-xs"
+                                        className="w-full p-2 border border-slate-300 rounded text-xs"
                                     />
-                                </td>
-                                <td className="px-4 py-4 min-w-[200px]">
+                                </div>
+                                <div className="flex-1 min-w-0">
                                     <select
                                         value={editForm.verifierId}
                                         onChange={e => setEditForm({ ...editForm, verifierId: e.target.value })}
                                         className="w-full p-2 border border-slate-300 rounded text-sm bg-white"
                                     >
-                                        <option value="">-- Pilih Penyemak (Pengesah) --</option>
+                                        <option value="">-- Pilih Penyemak --</option>
                                         {verifierUsers.map(u => <option key={u.id} value={u.id}>{u.full_name}</option>)}
                                     </select>
-                                </td>
-                                <td className="px-4 py-4 min-w-[200px]">
+                                </div>
+                                <div className="flex-1 min-w-0">
                                     <select
                                         value={editForm.approverId}
                                         onChange={e => setEditForm({ ...editForm, approverId: e.target.value })}
@@ -140,35 +138,33 @@ export const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, us
                                         <option value="">-- Pilih Pelulus --</option>
                                         {approverUsers.map(u => <option key={u.id} value={u.id}>{u.full_name}</option>)}
                                     </select>
-                                </td>
-                                <td className="px-4 py-4">
+                                </div>
+                                <div className="w-24 shrink-0 pt-2">
                                     <span className="px-2 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800">Aktif</span>
-                                </td>
-                                <td className="px-4 py-4">
-                                    <div className="flex gap-2">
-                                        <button onClick={handleSave} disabled={saving} className="p-1.5 text-emerald-600 hover:text-white hover:bg-emerald-600 rounded transition border border-emerald-600">
-                                            {saving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
-                                        </button>
-                                        <button onClick={cancelEdit} disabled={saving} className="p-1.5 text-slate-500 hover:text-white hover:bg-slate-500 rounded transition border border-slate-300">
-                                            <X size={16} />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
+                                </div>
+                                <div className="w-24 shrink-0 pt-1 flex gap-2">
+                                    <button onClick={handleSave} disabled={saving} className="p-1.5 text-emerald-600 hover:text-white hover:bg-emerald-600 rounded transition border border-emerald-600">
+                                        {saving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                                    </button>
+                                    <button onClick={cancelEdit} disabled={saving} className="p-1.5 text-slate-500 hover:text-white hover:bg-slate-500 rounded transition border border-slate-300">
+                                        <X size={16} />
+                                    </button>
+                                </div>
+                            </div>
                         )}
 
                         {categories.map(cat => {
                             const isEditing = isEditingId === cat.id;
                             return (
-                                <tr key={cat.id} className="hover:bg-slate-50 transition-colors">
-                                    <td className="px-4 py-4">
+                                <div key={cat.id} className="flex gap-4 px-4 py-4 items-start hover:bg-slate-50 transition-colors">
+                                    <div className="flex-[1.5] min-w-0 flex flex-col gap-2">
                                         {isEditing ? (
                                             <>
                                                 <input
                                                     type="text"
                                                     value={editForm.name}
                                                     onChange={e => setEditForm({ ...editForm, name: e.target.value })}
-                                                    className="w-full p-2 border border-blue-300 rounded text-sm mb-2"
+                                                    className="w-full p-2 border border-blue-300 rounded text-sm"
                                                 />
                                                 <input
                                                     type="text"
@@ -179,28 +175,28 @@ export const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, us
                                             </>
                                         ) : (
                                             <div>
-                                                <p className="font-semibold text-slate-800">{cat.name}</p>
-                                                <p className="text-xs text-slate-500">{cat.description || '-'}</p>
+                                                <p className="font-semibold text-slate-800 break-words">{cat.name}</p>
+                                                <p className="text-xs text-slate-500 break-words mt-1">{cat.description || '-'}</p>
                                             </div>
                                         )}
-                                    </td>
+                                    </div>
 
-                                    <td className="px-4 py-4">
+                                    <div className="flex-1 min-w-0">
                                         {isEditing ? (
                                             <select
                                                 value={editForm.verifierId}
                                                 onChange={e => setEditForm({ ...editForm, verifierId: e.target.value })}
                                                 className="w-full p-2 border border-slate-300 rounded text-sm bg-white"
                                             >
-                                                <option value="">-- Pilih Penyemak (Pengesah) --</option>
+                                                <option value="">-- Pilih Penyemak --</option>
                                                 {verifierUsers.map(u => <option key={u.id} value={u.id}>{u.full_name}</option>)}
                                             </select>
                                         ) : (
-                                            <span className="text-slate-800">{cat.routing?.[0]?.verifier?.full_name || '-'}</span>
+                                            <span className="text-slate-800 break-words">{cat.routing?.[0]?.verifier?.full_name || '-'}</span>
                                         )}
-                                    </td>
+                                    </div>
 
-                                    <td className="px-4 py-4">
+                                    <div className="flex-1 min-w-0">
                                         {isEditing ? (
                                             <select
                                                 value={editForm.approverId}
@@ -211,11 +207,11 @@ export const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, us
                                                 {approverUsers.map(u => <option key={u.id} value={u.id}>{u.full_name}</option>)}
                                             </select>
                                         ) : (
-                                            <span className="text-slate-800">{cat.routing?.[0]?.approver?.full_name || '-'}</span>
+                                            <span className="text-slate-800 break-words">{cat.routing?.[0]?.approver?.full_name || '-'}</span>
                                         )}
-                                    </td>
+                                    </div>
 
-                                    <td className="px-4 py-4">
+                                    <div className="w-24 shrink-0 pt-2">
                                         {isEditing ? (
                                             <label className="flex items-center space-x-2 text-sm cursor-pointer">
                                                 <input
@@ -224,7 +220,7 @@ export const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, us
                                                     onChange={e => setEditForm({ ...editForm, is_active: e.target.checked })}
                                                     className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
                                                 />
-                                                <span>{editForm.is_active ? 'Aktif' : 'Tidak Aktif'}</span>
+                                                <span>Aktif</span>
                                             </label>
                                         ) : (
                                             <span className={`px-2 py-1 text-xs font-semibold rounded-full ${cat.is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
@@ -232,18 +228,18 @@ export const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, us
                                                 {cat.is_active ? 'Aktif' : 'Tidak Aktif'}
                                             </span>
                                         )}
-                                    </td>
+                                    </div>
 
-                                    <td className="px-4 py-4">
+                                    <div className="w-24 shrink-0 pt-1 flex gap-2">
                                         {isEditing ? (
-                                            <div className="flex gap-2">
+                                            <>
                                                 <button onClick={handleSave} disabled={saving} className="p-1.5 text-emerald-600 hover:text-white hover:bg-emerald-600 rounded transition border border-emerald-600">
                                                     {saving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
                                                 </button>
                                                 <button onClick={cancelEdit} disabled={saving} className="p-1.5 text-slate-500 hover:text-white hover:bg-slate-500 rounded transition border border-slate-300">
                                                     <X size={16} />
                                                 </button>
-                                            </div>
+                                            </>
                                         ) : (
                                             <button
                                                 onClick={() => startEdit(cat)}
@@ -253,12 +249,12 @@ export const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, us
                                                 <Edit2 size={16} />
                                             </button>
                                         )}
-                                    </td>
-                                </tr>
+                                    </div>
+                                </div>
                             )
                         })}
-                    </tbody>
-                </table>
+                    </div>
+                </div>
                 {categories.length === 0 && !isCreating && (
                     <p className="text-center text-slate-500 py-6 text-sm">Tiada kategori ditemui.</p>
                 )}
