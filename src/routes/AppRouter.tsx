@@ -10,7 +10,30 @@ import PenyemakDashboard from '../pages/dashboards/PenyemakDashboard';
 import PengesahDashboard from '../pages/dashboards/PengesahDashboard';
 import PelulusDashboard from '../pages/dashboards/PelulusDashboard';
 
+import { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabaseClient';
+
 export const AppRouter = () => {
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        supabase.auth.getSession().then(() => {
+            setLoading(false);
+        });
+
+        const { data: authListener } = supabase.auth.onAuthStateChange(() => {
+            setLoading(false);
+        });
+
+        return () => {
+            authListener.subscription.unsubscribe();
+        };
+    }, []);
+
+    if (loading) {
+        return <div className="min-h-screen flex items-center justify-center">Loading authentication...</div>;
+    }
+
     return (
         <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />

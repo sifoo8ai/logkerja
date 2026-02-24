@@ -1,4 +1,4 @@
 # Project Context
 
-Completed: T7.0 Production Hardening (Optimistic Locks, Indexes, Rate Limits)
-Next: Final Sign-off & Handover
+Completed: BUGFIX-AUTH-01 OAuth session exchange fixed
+Next: continue testing flows
