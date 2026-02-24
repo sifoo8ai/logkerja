@@ -32,8 +32,9 @@ const PengesahDashboard: React.FC = () => {
             // Clean up selected ids if they are no longer in documents
             const docIds = new Set(docs?.map(d => d.id) || []);
             setSelectedIds(prev => prev.filter(id => docIds.has(id)));
-        } catch (error) {
-            console.error('Error loading pengesah dashboard data:', error);
+        } catch (error: any) {
+            console.error('fetchPengesahQueue error', error);
+            alert(`Error: ${error?.message}\nDetails: ${error?.details || ''}`);
         } finally {
             setLoading(false);
         }

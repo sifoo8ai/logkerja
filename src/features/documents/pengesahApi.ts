@@ -20,13 +20,13 @@ export async function fetchAssignedDocuments(userId: string): Promise<DocumentRo
     const { data, error } = await supabase
         .from('documents')
         .select(`
-            id, reference_no, current_status, created_at, updated_at, description,
+            id, reference_no, current_status, created_at, updated_at, description, verifier_id, approver_id,
             category:document_categories(id, name),
-            creator:profiles!documents_creator_id_fkey(full_name)
+            creator:profiles!creator_id(full_name)
         `)
         .eq('verifier_id', userId)
         .eq('current_status', 'PENDING_VERIFIER')
-        .order('created_at', { ascending: true });
+        .order('updated_at', { ascending: false });
 
     if (error) throw error;
     return data as any;
