@@ -214,13 +214,13 @@ const PengesahDashboard: React.FC = () => {
                                             <td className="px-6 py-4 font-semibold text-slate-900">{item.document?.reference_no}</td>
                                             <td className="px-6 py-4">{item.document?.category?.name || '-'}</td>
                                             <td className="px-6 py-4">
-                                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${item.action_type === 'APPROVE_VERIFIER' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
-                                                    {item.action_type}
+                                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${item.action === 'APPROVE_VERIFIER' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
+                                                    {item.action}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className="text-xs font-medium text-slate-600">
-                                                    {item.document?.status?.replace('_', ' ')}
+                                                    {item.document?.current_status?.replace('_', ' ')}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-slate-500">{new Date(item.created_at).toLocaleDateString()}</td>

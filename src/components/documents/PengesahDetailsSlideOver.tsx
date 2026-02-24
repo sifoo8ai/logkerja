@@ -238,7 +238,7 @@ export const PengesahDetailsSlideOver: React.FC<PengesahDetailsSlideOverProps> =
                                         <div className="bg-white border-2 border-blue-500 w-3 h-3 rounded-full mt-1.5 ml-3.5 z-10 shrink-0 shadow-sm" />
                                         <div className="ml-4 p-3 bg-slate-50 rounded-md border border-slate-200 w-full shadow-sm">
                                             <div className="flex justify-between items-center mb-1">
-                                                <span className="text-sm font-bold text-slate-800">{act.action_type}</span>
+                                                <span className="text-sm font-bold text-slate-800">{act.action}</span>
                                                 <span className="text-xs text-slate-500">{new Date(act.created_at).toLocaleDateString()}</span>
                                             </div>
                                             <p className="text-xs text-slate-600 mb-1">Oleh: <span className="font-medium">{act.actor?.full_name || 'System'}</span></p>

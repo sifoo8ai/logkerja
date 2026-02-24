@@ -84,8 +84,8 @@ export async function fetchDocumentActions(docId: string) {
     const { data, error } = await supabase
         .from('document_actions')
         .select(`
-            id, action_type, note, created_at,
-            actor:profiles!actor_user_id(full_name)
+            id, action, note, created_at,
+            actor:profiles(full_name)
         `)
         .eq('document_id', docId)
         .order('created_at', { ascending: false });

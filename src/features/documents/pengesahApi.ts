@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabaseClient';
 export interface DocumentRowExtended {
     id: string;
     reference_no: string;
-    status: string;
+    current_status: string;
     created_at: string;
     updated_at: string;
     description: string | null;
@@ -20,12 +20,12 @@ export async function fetchAssignedDocuments(userId: string): Promise<DocumentRo
     const { data, error } = await supabase
         .from('documents')
         .select(`
-            id, reference_no, status, created_at, updated_at, description, verifier_id, approver_id,
+            id, reference_no, current_status, created_at, updated_at, description, verifier_id, approver_id,
             category:document_categories(id, name),
             creator:profiles!creator_id(full_name)
         `)
         .eq('verifier_id', userId)
-        .eq('status', 'PENDING_VERIFIER')
+        .eq('current_status', 'PENDING_VERIFIER')
         .order('updated_at', { ascending: false });
 
     if (error) throw error;
@@ -36,11 +36,11 @@ export async function fetchPengesahHistory(userId: string) {
     const { data, error } = await supabase
         .from('document_actions')
         .select(`
-            id, action_type, created_at, note,
-            document:documents(id, reference_no, status, category:document_categories(name))
+            id, action, created_at, note,
+            document:documents(id, reference_no, current_status, category:document_categories(name))
         `)
-        .eq('actor_user_id', userId)
-        .in('action_type', ['APPROVE_VERIFIER', 'REJECT_VERIFIER'])
+        .eq('actor_id', userId)
+        .in('action', ['APPROVE_VERIFIER', 'REJECT_VERIFIER'])
         .order('created_at', { ascending: false });
 
     if (error) throw error;
