@@ -1,0 +1,18 @@
+{
+    "manifest_version": 3,
+    "name": "LogKerja Side Panel",
+    "version": "1.0.0",
+    "description": "LogKerja App in Chrome Side Panel",
+    "permissions": [
+        "sidePanel"
+    ],
+    "background": {
+        "service_worker": "service_worker.js"
+    },
+    "action": {
+        "default_title": "Open LogKerja Side Panel"
+    },
+    "side_panel": {
+        "default_path": "sidepanel.html"
+    }
+}
