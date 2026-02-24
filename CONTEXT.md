@@ -1,4 +1,4 @@
 # Project Context
 
-Completed: BUGFIX-ADMIN-03 document_categories grants fixed
-Next: continue admin setup (create categories + routing)
+Completed: BUGFIX-ADMIN-04 labels + routing grants
+Next: continue setup categories/routing

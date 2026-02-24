@@ -56,7 +56,7 @@ export const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, us
 
     const handleSave = async () => {
         if (!editForm.name.trim() || !editForm.verifierId || !editForm.approverId) {
-            setError('Nama, Penyemak lalai dan Pelulus lalai wajib diisi.');
+            setError('Nama, Pengesah lalai dan Pelulus lalai wajib diisi.');
             return;
         }
 
@@ -95,7 +95,7 @@ export const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, us
                 <div className="w-full text-left text-sm min-w-[900px] border-t border-slate-200">
                     <div className="bg-slate-50 text-slate-600 font-medium flex gap-4 px-4 py-3 border-b border-slate-200">
                         <div className="flex-[1.5] min-w-0">Nama Kategori</div>
-                        <div className="flex-1 min-w-0">Routing (Penyemak)</div>
+                        <div className="flex-1 min-w-0">Routing (Pengesah)</div>
                         <div className="flex-1 min-w-0">Routing (Pelulus)</div>
                         <div className="w-24 shrink-0">Status</div>
                         <div className="w-24 shrink-0">Tindakan</div>
@@ -125,7 +125,7 @@ export const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, us
                                         onChange={e => setEditForm({ ...editForm, verifierId: e.target.value })}
                                         className="w-full p-2 border border-slate-300 rounded text-sm bg-white"
                                     >
-                                        <option value="">-- Pilih Penyemak --</option>
+                                        <option value="">-- Pilih Pengesah --</option>
                                         {verifierUsers.map(u => <option key={u.id} value={u.id}>{u.full_name}</option>)}
                                     </select>
                                 </div>
@@ -188,7 +188,7 @@ export const AdminCategories: React.FC<AdminCategoriesProps> = ({ categories, us
                                                 onChange={e => setEditForm({ ...editForm, verifierId: e.target.value })}
                                                 className="w-full p-2 border border-slate-300 rounded text-sm bg-white"
                                             >
-                                                <option value="">-- Pilih Penyemak --</option>
+                                                <option value="">-- Pilih Pengesah --</option>
                                                 {verifierUsers.map(u => <option key={u.id} value={u.id}>{u.full_name}</option>)}
                                             </select>
                                         ) : (
