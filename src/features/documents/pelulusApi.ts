@@ -5,7 +5,7 @@ export async function fetchPelulusDocuments(userId: string): Promise<DocumentRow
     const { data, error } = await supabase
         .from('documents')
         .select(`
-            id, reference_no, current_status, created_at, updated_at, description,
+            id, reference_no, current_status, created_at, updated_at, description, creator_id,
             category:document_categories(id, name),
             creator:profiles!documents_creator_id_fkey(full_name)
         `)

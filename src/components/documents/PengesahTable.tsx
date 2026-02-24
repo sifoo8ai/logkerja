@@ -85,7 +85,7 @@ export const PengesahTable: React.FC<PengesahTableProps> = ({
                                             {isSelected ? <CheckSquare size={18} className="text-blue-600" /> : <Square size={18} className="text-slate-400" />}
                                         </td>
                                         <td className="px-6 py-4 font-semibold text-slate-900">{doc.reference_no}</td>
-                                        <td className="px-6 py-4">{doc.creator?.full_name || '-'}</td>
+                                        <td className="px-6 py-4">{doc.creator?.full_name || doc.creator_id?.substring(0, 8) || '-'}</td>
                                         <td className="px-6 py-4">{doc.category?.name || '-'}</td>
                                         <td className="px-6 py-4">
                                             <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">

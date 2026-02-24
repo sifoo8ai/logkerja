@@ -7,6 +7,7 @@ export interface DocumentRowExtended {
     created_at: string;
     updated_at: string;
     description: string | null;
+    creator_id: string;
     category: {
         id: string;
         name: string;
@@ -20,9 +21,9 @@ export async function fetchAssignedDocuments(userId: string): Promise<DocumentRo
     const { data, error } = await supabase
         .from('documents')
         .select(`
-            id, reference_no, current_status, created_at, updated_at, description, verifier_id, approver_id,
+            id, reference_no, current_status, created_at, updated_at, description, verifier_id, approver_id, creator_id,
             category:document_categories(id, name),
-            creator:profiles!creator_id(full_name)
+            creator:profiles!documents_creator_id_fkey(full_name)
         `)
         .eq('verifier_id', userId)
         .eq('current_status', 'PENDING_VERIFIER')
