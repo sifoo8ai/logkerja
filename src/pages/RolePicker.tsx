@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
-import { fetchUserRoles, setActiveRole as setStorageActiveRole, getActiveRole } from '../lib/auth';
+import { fetchUserRoles, setActiveRole as setStorageActiveRole } from '../lib/auth';
 import { getDefaultRoute } from '../lib/roles';
 import { checkAndBootstrapProfile, signOut } from '../lib/auth';
 

@@ -1,4 +1,4 @@
 # Project Context
 
-Completed: T6.0 System Integrity Audit
-Next: Chrome Side Panel + PWA polish
+Completed: T6.1 PWA Packaging
+Next: Penilaian Akhir & Laporan
