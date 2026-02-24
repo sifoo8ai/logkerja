@@ -1,4 +1,4 @@
 # Project Context
 
-Completed: BUGFIX-ADMIN-01 routing grants fixed
-Next: continue manual testing (create categories, assign routing)
+Completed: BUGFIX-ADMIN-02 user_roles grants fixed
+Next: finalize delivery
