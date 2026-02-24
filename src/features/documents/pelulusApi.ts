@@ -1,0 +1,57 @@
+import { supabase } from '../../lib/supabaseClient';
+import { DocumentRowExtended } from './pengesahApi'; // reuse type
+
+export async function fetchPelulusDocuments(userId: string): Promise<DocumentRowExtended[]> {
+    const { data, error } = await supabase
+        .from('documents')
+        .select(`
+            id, reference_no, current_status, created_at, updated_at, description,
+            category:document_categories(id, name),
+            creator:profiles!documents_creator_id_fkey(full_name)
+        `)
+        .eq('assigned_approver', userId)
+        .eq('current_status', 'PENDING_APPROVER')
+        .order('created_at', { ascending: true });
+
+    if (error) throw error;
+    return data as any;
+}
+
+export async function fetchPelulusHistory(userId: string) {
+    const { data, error } = await supabase
+        .from('document_actions')
+        .select(`
+            id, action, created_at, note,
+            document:documents(id, reference_no, current_status, category:document_categories(name))
+        `)
+        .eq('actor_user_id', userId)
+        .in('action', ['APPROVE', 'REJECT'])
+        .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+}
+
+export async function approveDocumentAsPelulus(docId: string, note?: string) {
+    const { data, error } = await supabase.functions.invoke('documents_transition', {
+        body: { doc_id: docId, action: 'APPROVE', note: note || 'Diluluskan oleh pelulus' }
+    });
+
+    if (error || data?.error) {
+        throw new Error(error?.message || data?.error || 'Failed to approve document');
+    }
+
+    return data;
+}
+
+export async function rejectDocumentAsPelulus(docId: string, note: string) {
+    const { data, error } = await supabase.functions.invoke('documents_transition', {
+        body: { doc_id: docId, action: 'REJECT', note }
+    });
+
+    if (error || data?.error) {
+        throw new Error(error?.message || data?.error || 'Failed to reject document');
+    }
+
+    return data;
+}
