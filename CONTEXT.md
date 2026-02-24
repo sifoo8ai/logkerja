@@ -1,4 +1,4 @@
 # Project Context
 
-Completed: BUGFIX-AUTH-01 OAuth session exchange fixed
-Next: continue testing flows
+Completed: BUGFIX-ADMIN-01 routing grants fixed
+Next: continue manual testing (create categories, assign routing)
