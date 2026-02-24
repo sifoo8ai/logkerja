@@ -1,4 +1,4 @@
 # Project Context
 
-Completed: T4.2 Pelulus dashboard
-Next: T5.0 Admin dashboard
+Completed: T5.0 Admin dashboard
+Next: System Audit + Chrome Side Panel + PWA polish
