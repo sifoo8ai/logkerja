@@ -14,6 +14,7 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 export const ImageDropzone: React.FC<ImageDropzoneProps> = ({ documentId, onSuccess, onChange, hideUploadButton }) => {
     const [file, setFile] = useState<File | null>(null);
+    const [isDragging, setIsDragging] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const [uploading, setUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -27,6 +28,24 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({ documentId, onSucc
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setErrorMsg('');
         const selected = e.target.files?.[0];
+        validateAndSetFile(selected);
+    };
+
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDragging(false);
+        setErrorMsg('');
+        const selected = e.dataTransfer.files?.[0];
         validateAndSetFile(selected);
     };
 
@@ -68,20 +87,28 @@ export const ImageDropzone: React.FC<ImageDropzoneProps> = ({ documentId, onSucc
             <h3 className="font-medium text-gray-800 mb-3">Sertakan Attachment (Imej)</h3>
 
             {!file ? (
-                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6 text-slate-500">
-                        <UploadCloud className="w-8 h-8 mb-2" />
-                        <p className="text-sm font-semibold mb-1">Klik untuk memuat naik</p>
-                        <p className="text-xs text-slate-400">JPG, PNG atau WebP (Maks: 5MB)</p>
-                    </div>
-                    <input
-                        ref={fileInputRef}
-                        type="file"
-                        className="hidden"
-                        accept="image/jpeg, image/png, image/webp"
-                        onChange={handleFileChange}
-                    />
-                </label>
+                <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className="w-full relative"
+                >
+                    <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${isDragging ? 'bg-blue-50 border-blue-400' : 'bg-slate-50 border-slate-300 hover:bg-slate-100'
+                        }`}>
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6 text-slate-500">
+                            <UploadCloud className="w-8 h-8 mb-2" />
+                            <p className="text-sm font-semibold mb-1">Klik untuk memuat naik</p>
+                            <p className="text-xs text-slate-400">JPG, PNG atau WebP (Maks: 5MB)</p>
+                        </div>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            className="hidden"
+                            accept="image/jpeg, image/png, image/webp"
+                            onChange={handleFileChange}
+                        />
+                    </label>
+                </div>
             ) : (
                 <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg bg-slate-50">
                     <div className="flex flex-col truncate pr-4">

@@ -1,4 +1,4 @@
 # Project Context
 
-Completed: BUGFIX-ADMIN-05 routing save persists + display fixed
-Next: continue workflow testing end-to-end
+Completed: BUGFIX-CORS-01 + BUGFIX-SUBMIT-01
+Next: continue functional testing (create category routing → submit doc → approve/reject flow)

@@ -55,8 +55,14 @@ export async function submitNewDocument(refNo: string, categoryId: string, descr
         body: { ref_no: refNo, cat_id: categoryId, desc: description }
     });
 
-    if (error || data?.error) {
-        throw new Error(error?.message || data?.error || 'Failed to create document');
+    if (error) {
+        let msg = error.message;
+        if ((error as any).details) msg += `\nDetails: ${(error as any).details}`;
+        if ((error as any).status) msg = `[HTTP ${(error as any).status}] ${msg}`;
+        throw new Error(msg);
+    }
+    if (data?.error) {
+        throw new Error(data.error);
     }
 
     return data.docId;
