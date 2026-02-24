@@ -1,4 +1,4 @@
 # Project Context
 
-Completed: BUGFIX-ADMIN-02 user_roles grants fixed
-Next: finalize delivery
+Completed: BUGFIX-ADMIN-03 document_categories grants fixed
+Next: continue admin setup (create categories + routing)
