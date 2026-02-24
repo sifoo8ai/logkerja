@@ -34,7 +34,6 @@ const PengesahDashboard: React.FC = () => {
             setSelectedIds(prev => prev.filter(id => docIds.has(id)));
         } catch (error: any) {
             console.error('fetchPengesahQueue error', error);
-            alert(`Error: ${error?.message}\nDetails: ${error?.details || ''}`);
         } finally {
             setLoading(false);
         }
