@@ -1,4 +1,4 @@
 # Project Context
 
-Completed: T6.2 Chrome Side Panel Extension
-Next: Penilaian Akhir & Laporan
+Completed: T7.0 Production Hardening (Optimistic Locks, Indexes, Rate Limits)
+Next: Final Sign-off & Handover
