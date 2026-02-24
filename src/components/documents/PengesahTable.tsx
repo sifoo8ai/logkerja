@@ -89,7 +89,7 @@ export const PengesahTable: React.FC<PengesahTableProps> = ({
                                         <td className="px-6 py-4">{doc.category?.name || '-'}</td>
                                         <td className="px-6 py-4">
                                             <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
-                                                {doc.current_status.replace('_', ' ')}
+                                                {doc.status?.replace('_', ' ')}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-slate-500">{new Date(doc.updated_at).toLocaleDateString()}</td>

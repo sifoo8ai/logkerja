@@ -22,12 +22,8 @@ const PengesahDashboard: React.FC = () => {
 
     const loadData = async (uid: string) => {
         try {
-            const [docs, hist] = await Promise.all([
-                fetchAssignedDocuments(uid),
-                fetchPengesahHistory(uid)
-            ]);
+            const docs = await fetchAssignedDocuments(uid);
             setDocuments(docs || []);
-            setHistory(hist || []);
 
             // Clean up selected ids if they are no longer in documents
             const docIds = new Set(docs?.map(d => d.id) || []);
@@ -145,7 +141,20 @@ const PengesahDashboard: React.FC = () => {
                         )}
                     </button>
                     <button
-                        onClick={() => setActiveTab('sejarah')}
+                        onClick={async () => {
+                            setActiveTab('sejarah');
+                            if (userId && history.length === 0) {
+                                setLoading(true);
+                                try {
+                                    const hist = await fetchPengesahHistory(userId);
+                                    setHistory(hist || []);
+                                } catch (err) {
+                                    console.error('Failed to load history', err);
+                                } finally {
+                                    setLoading(false);
+                                }
+                            }
+                        }}
                         className={`flex items-center whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'sejarah'
                             ? 'border-blue-600 text-blue-600'
                             : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
@@ -205,13 +214,13 @@ const PengesahDashboard: React.FC = () => {
                                             <td className="px-6 py-4 font-semibold text-slate-900">{item.document?.reference_no}</td>
                                             <td className="px-6 py-4">{item.document?.category?.name || '-'}</td>
                                             <td className="px-6 py-4">
-                                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${item.action === 'APPROVE' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
-                                                    {item.action}
+                                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${item.action_type === 'APPROVE_VERIFIER' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
+                                                    {item.action_type}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className="text-xs font-medium text-slate-600">
-                                                    {item.document?.current_status?.replace('_', ' ')}
+                                                    {item.document?.status?.replace('_', ' ')}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-slate-500">{new Date(item.created_at).toLocaleDateString()}</td>
