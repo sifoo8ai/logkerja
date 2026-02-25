@@ -25,11 +25,25 @@ export async function fetchPelulusHistory(userId: string) {
             document:documents(id, reference_no, current_status, category:document_categories(name))
         `)
         .eq('actor_id', userId)
-        .in('action', ['APPROVE', 'REJECT'])
+        .in('action', ['APPROVE_APPROVER', 'REJECT_APPROVER'])
         .order('created_at', { ascending: false });
 
     if (error) throw error;
     return data;
+}
+
+async function extractErrorMsg(error: any) {
+    if (!error) return null;
+    console.error('documents_transition error', error);
+    try {
+        if (error.context && typeof error.context.json === 'function') {
+            const body = await error.context.json();
+            if (body && body.error) return body.error;
+        }
+    } catch (e) {
+        // ignore JSON parse error
+    }
+    return error.message || 'Ralat tidak diketahui';
 }
 
 export async function approveDocumentAsPelulus(docId: string, note?: string) {
@@ -37,8 +51,11 @@ export async function approveDocumentAsPelulus(docId: string, note?: string) {
         body: { doc_id: docId, action: 'APPROVE', note: note || 'Diluluskan oleh pelulus' }
     });
 
-    if (error || data?.error) {
-        throw new Error(error?.message || data?.error || 'Failed to approve document');
+    if (error) {
+        throw new Error(await extractErrorMsg(error) || 'Gagal meluluskan dokumen');
+    }
+    if (data?.error) {
+        throw new Error(data.error);
     }
 
     return data;
@@ -49,8 +66,11 @@ export async function rejectDocumentAsPelulus(docId: string, note: string) {
         body: { doc_id: docId, action: 'REJECT', note }
     });
 
-    if (error || data?.error) {
-        throw new Error(error?.message || data?.error || 'Failed to reject document');
+    if (error) {
+        throw new Error(await extractErrorMsg(error) || 'Gagal menolak dokumen');
+    }
+    if (data?.error) {
+        throw new Error(data.error);
     }
 
     return data;

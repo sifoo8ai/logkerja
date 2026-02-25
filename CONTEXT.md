@@ -8,5 +8,6 @@ Completed:
 - UX-ENHANCE-01 pending actor display
 - DB-ENHANCE-EMAIL-01: add profiles.email and populate on login upsert
 - BUGFIX-PROFILE-01: redesign profile page with corporate cards and icons
+- BUGFIX-TRANSITION-01: fix documents_transition payload/action mapping
 
 Next: continue UAT flow

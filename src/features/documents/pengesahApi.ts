@@ -48,13 +48,30 @@ export async function fetchPengesahHistory(userId: string) {
     return data;
 }
 
+async function extractErrorMsg(error: any) {
+    if (!error) return null;
+    console.error('documents_transition error', error);
+    try {
+        if (error.context && typeof error.context.json === 'function') {
+            const body = await error.context.json();
+            if (body && body.error) return body.error;
+        }
+    } catch (e) {
+        // ignore JSON parse error
+    }
+    return error.message || 'Ralat tidak diketahui';
+}
+
 export async function approveDocument(docId: string, note?: string) {
     const { data, error } = await supabase.functions.invoke('documents_transition', {
         body: { doc_id: docId, action: 'APPROVE', note: note || 'Disahkan oleh pengesah' }
     });
 
-    if (error || data?.error) {
-        throw new Error(error?.message || data?.error || 'Failed to approve document');
+    if (error) {
+        throw new Error(await extractErrorMsg(error) || 'Gagal menyahkan dokumen');
+    }
+    if (data?.error) {
+        throw new Error(data.error);
     }
 
     return data;
@@ -65,8 +82,11 @@ export async function rejectDocument(docId: string, note: string) {
         body: { doc_id: docId, action: 'REJECT', note }
     });
 
-    if (error || data?.error) {
-        throw new Error(error?.message || data?.error || 'Failed to reject document');
+    if (error) {
+        throw new Error(await extractErrorMsg(error) || 'Gagal menolak dokumen');
+    }
+    if (data?.error) {
+        throw new Error(data.error);
     }
 
     return data;
