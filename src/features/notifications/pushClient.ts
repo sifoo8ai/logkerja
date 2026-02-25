@@ -25,7 +25,11 @@ export async function subscribeUserToPush(): Promise<{ success: boolean; error?:
         return { success: false, error: "Kebenaran notifikasi ditolak oleh pengguna." };
     }
 
-    // We need service worker registered for this.
+    // Check if service worker is actually registered, because navigator.serviceWorker.ready can hang infinitely if it's not.
+    const swRegistration = await navigator.serviceWorker.getRegistration();
+    if (!swRegistration) {
+        return { success: false, error: "Service Worker tiada/belum sedia. Sila muat semula web, atau pastikan anda menggunakan HTTPS / Localhost." };
+    }
     const registration = await navigator.serviceWorker.ready;
 
     // VAPID keys ideally retrieved from config/env; using placeholder for logkerja project
