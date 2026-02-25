@@ -38,10 +38,10 @@ Deno.serve(async (req) => {
         const {
             data: { user },
             error,
-        } = await supabaseUser.auth.getUser();
+        } = await supabaseUser.auth.getUser(token);
 
         if (error || !user) {
-            return new Response(JSON.stringify({ error: "Invalid JWT" }), {
+            return new Response(JSON.stringify({ code: 401, message: "Invalid JWT", details: error }), {
                 status: 401,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             });
