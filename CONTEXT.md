@@ -11,5 +11,6 @@ Completed:
 - BUGFIX-TRANSITION-01: fix documents_transition payload/action mapping
 - BUGFIX-STATUSMODAL-01: fix pengesah detail status badge binding
 - BUGFIX-PUSH-04: subscribe and register push after permission grant
+- BUGFIX-PUSH-KEY-01: Fix invalid VAPID applicationServerKey (preview)
 
 Next: final UAT polish

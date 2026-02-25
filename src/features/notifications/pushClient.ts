@@ -41,14 +41,14 @@ export async function subscribeUserToPush(): Promise<{ success: boolean; error?:
     }
 
     // VAPID keys ideally retrieved from config/env; using placeholder for logkerja project
-    const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+    const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY?.trim();
     if (!vapidPublicKey) {
         console.error("VAPID_PUBLIC_KEY is not defined in env variables");
-        return { success: false, error: "Konfigurasi VAPID tidak dijumpai." };
+        return { success: false, error: "VAPID public key belum diset dalam .env" };
     }
 
     const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
-
+    console.log('PUSH: key length', convertedVapidKey.length);
     try {
         let subscription = await registration.pushManager.getSubscription();
         if (!subscription) {
@@ -58,6 +58,7 @@ export async function subscribeUserToPush(): Promise<{ success: boolean; error?:
             });
         }
         console.log('PUSH: subscription created', subscription);
+        console.log('PUSH: subscription endpoint', subscription.endpoint);
 
         console.log('PUSH: calling push_register');
         // Save to DB via Edge function
