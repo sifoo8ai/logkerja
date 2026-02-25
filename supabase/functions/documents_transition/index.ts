@@ -15,17 +15,42 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const authHeader = req.headers.get('Authorization');
-        if (!authHeader) throw new Error('Missing Authorization header');
+        const authHeader = req.headers.get("Authorization") ?? "";
+        const token = authHeader.replace("Bearer ", "").trim();
 
-        const supabaseClient = createClient(
-            Deno.env.get('SUPABASE_URL') ?? '',
-            Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-            { global: { headers: { Authorization: authHeader } } }
+        if (!token) {
+            return new Response(JSON.stringify({ error: "Missing token" }), {
+                status: 401,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+        }
+
+        const supabaseUser = createClient(
+            Deno.env.get("SUPABASE_URL")!,
+            Deno.env.get("SUPABASE_ANON_KEY")!,
+            {
+                global: {
+                    headers: { Authorization: `Bearer ${token}` },
+                },
+            }
         );
 
-        const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-        if (userError || !user) throw new Error('Unauthorized');
+        const {
+            data: { user },
+            error,
+        } = await supabaseUser.auth.getUser();
+
+        if (error || !user) {
+            return new Response(JSON.stringify({ error: "Invalid JWT" }), {
+                status: 401,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+        }
+
+        const supabaseAdmin = createClient(
+            Deno.env.get("SUPABASE_URL")!,
+            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+        );
 
         // Rate limiting removed to support frontend bulk actions (Promise.all)
         // DB constraints (current_status check) already prevent double-transitions.
@@ -37,19 +62,13 @@ Deno.serve(async (req) => {
         }
 
         // Call RPC transition_document
-        const { error: dbError } = await supabaseClient.rpc('transition_document', {
+        const { error: dbError } = await supabaseAdmin.rpc('transition_document', {
             p_doc_id: doc_id,
             p_action: action,
             p_note: note || null
         });
 
         if (dbError) throw dbError;
-
-        // Fetch affected user notification ids using service role
-        const supabaseAdmin = createClient(
-            Deno.env.get('SUPABASE_URL') ?? '',
-            Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-        );
 
         const { data: doc, error: docDataError } = await supabaseAdmin
             .from('documents')

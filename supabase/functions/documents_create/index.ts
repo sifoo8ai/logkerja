@@ -15,17 +15,42 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const authHeader = req.headers.get('Authorization');
-        if (!authHeader) throw new Error('Missing Authorization header');
+        const authHeader = req.headers.get("Authorization") ?? "";
+        const token = authHeader.replace("Bearer ", "").trim();
 
-        const supabaseClient = createClient(
-            Deno.env.get('SUPABASE_URL') ?? '',
-            Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-            { global: { headers: { Authorization: authHeader } } }
+        if (!token) {
+            return new Response(JSON.stringify({ error: "Missing token" }), {
+                status: 401,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+        }
+
+        const supabaseUser = createClient(
+            Deno.env.get("SUPABASE_URL")!,
+            Deno.env.get("SUPABASE_ANON_KEY")!,
+            {
+                global: {
+                    headers: { Authorization: `Bearer ${token}` },
+                },
+            }
         );
 
-        const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-        if (userError || !user) throw new Error('Unauthorized');
+        const {
+            data: { user },
+            error,
+        } = await supabaseUser.auth.getUser();
+
+        if (error || !user) {
+            return new Response(JSON.stringify({ error: "Invalid JWT" }), {
+                status: 401,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+        }
+
+        const supabaseAdmin = createClient(
+            Deno.env.get("SUPABASE_URL")!,
+            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+        );
 
         const { ref_no, cat_id, desc } = await req.json();
 
@@ -33,19 +58,13 @@ Deno.serve(async (req) => {
             throw new Error('Missing required arguments untuk create_document');
         }
 
-        const { data: docId, error: dbError } = await supabaseClient.rpc('create_document', {
+        const { data: docId, error: dbError } = await supabaseAdmin.rpc('create_document', {
             p_ref_no: ref_no,
             p_cat_id: cat_id,
             p_desc: desc
         });
 
         if (dbError) throw dbError;
-
-        // Trigger Notification process directly using function calling
-        const supabaseAdmin = createClient(
-            Deno.env.get('SUPABASE_URL') ?? '',
-            Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-        );
 
         const { data: routeData } = await supabaseAdmin.from('category_routing').select('default_verifier_id').eq('category_id', cat_id).single();
 
