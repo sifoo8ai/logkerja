@@ -15,13 +15,14 @@ export async function checkAndBootstrapProfile(user: any) {
         const newProfile = {
             id: user.id,
             full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Unknown User',
+            email: user.email,
             is_active: true
         };
 
         // Insert new profile
         const { data: newRow, error: insertError } = await supabase
             .from('profiles')
-            .insert([newProfile])
+            .upsert([newProfile], { onConflict: 'id' })
             .select()
             .single();
 
@@ -33,6 +34,20 @@ export async function checkAndBootstrapProfile(user: any) {
     } else if (error) {
         console.error("Error fetching profile:", error);
         return null;
+    }
+
+    // Backfill email on login if it's missing (Option A implementation)
+    if (profile && !profile.email && user.email) {
+        const { data: updatedProfile, error: updateError } = await supabase
+            .from('profiles')
+            .update({ email: user.email })
+            .eq('id', user.id)
+            .select()
+            .single();
+
+        if (!updateError && updatedProfile) {
+            return updatedProfile;
+        }
     }
 
     return profile;
