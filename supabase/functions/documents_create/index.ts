@@ -49,23 +49,41 @@ Deno.serve(async (req) => {
 
         const { data: routeData } = await supabaseAdmin.from('category_routing').select('default_verifier_id').eq('category_id', cat_id).single();
 
+        let pushDebug = null;
+
+        // Fetch document details for logging
+        const { data: docData } = await supabaseAdmin.from('documents').select('verifier_id, approver_id').eq('id', docId).single();
+        console.log(`[documents_create] docId: ${docId}, verifier_id: ${docData?.verifier_id}, approver_id: ${docData?.approver_id}`);
+
         if (routeData) {
-            // Async trigger for push notifications without awaiting
-            fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/push_send`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
-                },
-                body: JSON.stringify({
-                    user_ids: [routeData.default_verifier_id],
-                    title: "Dokumen Baharu LogKerja!",
-                    body: `Dokumen rujukan ${ref_no} diserahkan untuk semakan oleh Penyemak.`,
-                }),
-            }).catch(err => console.error("Error triggering push:", err));
+            const targets = [routeData.default_verifier_id];
+            console.log(`[documents_create] targets:`, targets);
+            try {
+                const pushResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/push_send`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
+                    },
+                    body: JSON.stringify({
+                        user_ids: targets,
+                        title: "Dokumen Baharu LogKerja!",
+                        body: `Dokumen rujukan ${ref_no} diserahkan untuk semakan.`,
+                        payload: { url: '/app/documents', docId }
+                    }),
+                });
+                pushDebug = await pushResponse.json();
+                console.log("[documents_create] push_send response:", pushDebug);
+                if (!pushResponse.ok) {
+                    console.error("[documents_create] push_send returned error status:", pushResponse.status, pushDebug);
+                }
+            } catch (err: any) {
+                console.error("[documents_create] Error triggering push:", err);
+                pushDebug = { error: err.message };
+            }
         }
 
-        return new Response(JSON.stringify({ docId }), {
+        return new Response(JSON.stringify({ docId, pushDebug }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
     } catch (err: any) {

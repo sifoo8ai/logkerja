@@ -12,5 +12,6 @@ Completed:
 - BUGFIX-STATUSMODAL-01: fix pengesah detail status badge binding
 - BUGFIX-PUSH-04: subscribe and register push after permission grant
 - BUGFIX-PUSH-KEY-01: Fix invalid VAPID applicationServerKey (preview)
+- BUGFIX-PUSH-DELIVERY-02: trigger push_send on documents_create and parse subscription jsonb
 
 Next: final UAT polish

@@ -75,18 +75,30 @@ Deno.serve(async (req) => {
             }
 
             if (notifyId) {
-                fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/push_send`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
-                    },
-                    body: JSON.stringify({
-                        user_ids: [notifyId],
-                        title: title,
-                        body: bodyMsg,
-                    }),
-                }).catch(err => console.error("Error triggering push for transition:", err));
+                const targets = [notifyId];
+                console.log(`[documents_transition] docId: ${doc_id}, action: ${action}, targets:`, targets);
+                try {
+                    const pushResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/push_send`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
+                        },
+                        body: JSON.stringify({
+                            user_ids: targets,
+                            title: title,
+                            body: bodyMsg,
+                            payload: { url: '/app/documents', docId: doc_id }
+                        }),
+                    });
+                    const pushDebug = await pushResponse.json();
+                    console.log("[documents_transition] push_send response:", pushDebug);
+                    if (!pushResponse.ok) {
+                        console.error("[documents_transition] push_send returned error status:", pushResponse.status, pushDebug);
+                    }
+                } catch (err: any) {
+                    console.error("[documents_transition] Error triggering push for transition:", err);
+                }
             }
         }
 

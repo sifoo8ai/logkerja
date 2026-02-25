@@ -32,6 +32,20 @@ Deno.serve(async (req) => {
             throw new Error('Valid user_ids array required');
         }
 
+        const vapidPublicKey = Deno.env.get('VAPID_PUBLIC_KEY');
+        const vapidPrivateKey = Deno.env.get('VAPID_PRIVATE_KEY');
+        const vapidSubject = Deno.env.get('VAPID_SUBJECT') || 'mailto:admin@logkerja.local';
+
+        if (!vapidPublicKey || !vapidPrivateKey) {
+            console.error('[push_send] Missing VAPID env vars');
+            return new Response(JSON.stringify({ error: "Missing VAPID env vars" }), {
+                status: 500,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+        }
+
+        console.log(`[push_send] targets:`, user_ids);
+
         const supabaseAdmin = createClient(
             Deno.env.get('SUPABASE_URL') ?? '',
             Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -50,31 +64,40 @@ Deno.serve(async (req) => {
             });
         }
 
+        console.log(`[push_send] found ${subs.length} total subscriptions for targets`);
+
         // Configure Web Push VAPID keys
         webPush.setVapidDetails(
-            'mailto:admin@logkerja.local',
-            Deno.env.get('VAPID_PUBLIC_KEY') ?? '',
-            Deno.env.get('VAPID_PRIVATE_KEY') ?? ''
+            vapidSubject,
+            vapidPublicKey,
+            vapidPrivateKey
         );
 
         const payloadString = JSON.stringify({ title, body, ...payload });
 
         // Send notifications in parallel
+        let successCount = 0;
+        let failCount = 0;
+
         const sendPromises = subs.map(async (sub) => {
             try {
-                await webPush.sendNotification(sub.subscription, payloadString);
+                const sendResult = await webPush.sendNotification(sub.subscription, payloadString);
+                console.log(`[push_send] Sent push to ${sub.id}: status ${sendResult.statusCode}`);
+                successCount++;
             } catch (err: any) {
+                failCount++;
                 // If subscription is invalid (404/410), delete it
                 if (err.statusCode === 404 || err.statusCode === 410) {
-                    console.log(`Deleting invalid subscription ${sub.id}`);
+                    console.log(`[push_send] Deleting invalid subscription ${sub.id}`);
                     await supabaseAdmin.from('push_subscriptions').delete().eq('id', sub.id);
                 } else {
-                    console.error(`Error sending push to ${sub.id}:`, err);
+                    console.error(`[push_send] Error sending push to ${sub.id}:`, err);
                 }
             }
         });
 
         await Promise.all(sendPromises);
+        console.log(`[push_send] Finished. Success: ${successCount}, Failed: ${failCount}`);
 
         return new Response(JSON.stringify({ success: true, sent_count: subs.length }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
