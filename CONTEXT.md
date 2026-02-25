@@ -5,5 +5,6 @@ Completed:
 - BUGFIX-PENGESAH-01
 - BUGFIX-PENGESAH-02
 - BUGFIX-DISPLAY-02
+- UX-ENHANCE-01 pending actor display
 
-Next: continue functional testing (approve/reject flow)
+Next: continue full workflow validation

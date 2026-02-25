@@ -7,10 +7,14 @@ export interface DocumentRow {
     created_at: string;
     updated_at: string;
     description: string | null;
+    verifier_id?: string;
+    approver_id?: string;
     category: {
         id: string;
         name: string;
     } | null;
+    verifier?: { full_name: string; email: string } | null;
+    approver?: { full_name: string; email: string } | null;
 }
 
 export async function fetchPenyemakKPIs(userId: string) {
