@@ -103,7 +103,9 @@ export const PengesahDetailsSlideOver: React.FC<PengesahDetailsSlideOverProps> =
 
     if (!isOpen || !document) return null;
 
-    const canAction = document.status === 'PENDING_VERIFIER';
+    // Determine the status from various possible API payload shapes
+    const currentStatus = document.current_status || document.document?.current_status || document.status;
+    const canAction = currentStatus === 'PENDING_VERIFIER';
 
     return (
         <div className="fixed inset-0 z-50 flex justify-end">
@@ -127,7 +129,7 @@ export const PengesahDetailsSlideOver: React.FC<PengesahDetailsSlideOverProps> =
                     <div>
                         <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Status Semasa</h3>
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
-                            {document.status?.replace('_', ' ')}
+                            {currentStatus?.replace('_', ' ')}
                         </span>
                     </div>
 

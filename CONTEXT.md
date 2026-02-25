@@ -9,5 +9,6 @@ Completed:
 - DB-ENHANCE-EMAIL-01: add profiles.email and populate on login upsert
 - BUGFIX-PROFILE-01: redesign profile page with corporate cards and icons
 - BUGFIX-TRANSITION-01: fix documents_transition payload/action mapping
+- BUGFIX-STATUSMODAL-01: fix pengesah detail status badge binding
 
-Next: continue UAT flow
+Next: final UAT polish

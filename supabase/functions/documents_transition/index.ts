@@ -27,17 +27,8 @@ Deno.serve(async (req) => {
         const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
         if (userError || !user) throw new Error('Unauthorized');
 
-        // Minimal Rate Protection: limit per user (1 request every 2s per user-action to block rapid double-clicks)
-        const RATE_LIMIT_CACHE_KEY = `rl_${user.id}_action`;
-        const lastAction = await caches.open('logkerja-rl').then(c => c.match(RATE_LIMIT_CACHE_KEY));
-        const now = Date.now();
-        if (lastAction) {
-            const timestamp = parseInt(await lastAction.text(), 10);
-            if (now - timestamp < 2000) { // 2 seconds delay
-                throw new Error('Too many requests. Please wait a moment.');
-            }
-        }
-        await caches.open('logkerja-rl').then(c => c.put(RATE_LIMIT_CACHE_KEY, new Response(now.toString())));
+        // Rate limiting removed to support frontend bulk actions (Promise.all)
+        // DB constraints (current_status check) already prevent double-transitions.
 
         const { doc_id, action, note } = await req.json();
 
