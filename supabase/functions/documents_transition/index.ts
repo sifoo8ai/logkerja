@@ -41,7 +41,14 @@ Deno.serve(async (req) => {
         } = await supabaseUser.auth.getUser(token);
 
         if (error || !user) {
-            return new Response(JSON.stringify({ code: 401, message: "Invalid JWT", details: error }), {
+            const debugPayload = {
+                hasSupabaseUrl: !!Deno.env.get("SUPABASE_URL"),
+                hasAnonKey: !!Deno.env.get("SUPABASE_ANON_KEY"),
+                authHeaderPresent: !!authHeader,
+                tokenPrefix: token ? token.substring(0, 10) : "",
+                projectUrl: Deno.env.get("SUPABASE_URL") || "",
+            };
+            return new Response(JSON.stringify({ code: 401, message: "Invalid JWT edge", error: "Invalid JWT", debug: debugPayload, details: error }), {
                 status: 401,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             });
