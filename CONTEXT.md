@@ -15,5 +15,6 @@ Completed:
 - BUGFIX-PUSH-DELIVERY-02: trigger push_send on documents_create and parse subscription jsonb
 - BUGFIX-JWT-EDGE-02: Fix Invalid JWT logic by using anon client for auth and service key for DB writes
 - BUGFIX-JWT-EDGE-03: Add temporary debug payload to Invalid JWT errors
+- BUGFIX-JWT-EDGE-04: Fix Invalid JWT in push_register and update push_send to return detailed error array
 
-Next: final UAT polish
+All Web Push Notification UAT passed successfully! 🎉
