@@ -116,8 +116,8 @@ export const DocumentDetailsSlideOver: React.FC<DocumentDetailsSlideOverProps> =
                             <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Menunggu Tindakan</h3>
                             <p className="text-sm font-medium text-slate-800 bg-blue-50 text-blue-900 px-3 py-2 rounded-md border border-blue-100 inline-block">
                                 {document.current_status === 'PENDING_VERIFIER'
-                                    ? (document.verifier?.full_name || document.verifier?.email || document.verifier_id?.substring(0, 8) || 'Pengesah')
-                                    : (document.approver?.full_name || document.approver?.email || document.approver_id?.substring(0, 8) || 'Pelulus')}
+                                    ? (document.verifier?.full_name || document.verifier_id?.substring(0, 8) || 'Pengesah')
+                                    : (document.approver?.full_name || document.approver_id?.substring(0, 8) || 'Pelulus')}
                             </p>
                         </div>
                     )}

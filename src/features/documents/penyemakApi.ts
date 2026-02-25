@@ -13,8 +13,8 @@ export interface DocumentRow {
         id: string;
         name: string;
     } | null;
-    verifier?: { full_name: string; email: string } | null;
-    approver?: { full_name: string; email: string } | null;
+    verifier?: { full_name: string } | null;
+    approver?: { full_name: string } | null;
 }
 
 export async function fetchPenyemakKPIs(userId: string) {

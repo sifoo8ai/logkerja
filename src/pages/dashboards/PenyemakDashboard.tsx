@@ -23,7 +23,7 @@ const PenyemakDashboard: React.FC = () => {
                 fetchPenyemakKPIs(uid),
                 supabase
                     .from('documents')
-                    .select('id, reference_no, current_status, created_at, updated_at, description, verifier_id, approver_id, category:document_categories(id, name), verifier:profiles!documents_verifier_id_fkey(full_name, email), approver:profiles!documents_approver_id_fkey(full_name, email)')
+                    .select('id, reference_no, current_status, created_at, updated_at, description, verifier_id, approver_id, category:document_categories(id, name), verifier:profiles!documents_verifier_id_fkey(full_name), approver:profiles!documents_approver_id_fkey(full_name)')
                     .eq('creator_id', uid)
                     .order('updated_at', { ascending: false })
             ]);
