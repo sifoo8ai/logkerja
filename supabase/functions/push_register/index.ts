@@ -18,13 +18,16 @@ Deno.serve(async (req) => {
         const authHeader = req.headers.get('Authorization');
         if (!authHeader) throw new Error('Missing Authorization header');
 
-        const supabaseClient = createClient(
+        const token = authHeader.replace('Bearer ', '');
+
+        // 1. Use service role client in Edge function
+        const supabaseAdmin = createClient(
             Deno.env.get('SUPABASE_URL') ?? '',
-            Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-            { global: { headers: { Authorization: authHeader } } }
+            Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
         );
 
-        const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+        // 2. Extract user from JWT using service role
+        const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
         if (userError || !user) throw new Error('Unauthorized');
 
         const body = await req.json();
@@ -34,28 +37,28 @@ Deno.serve(async (req) => {
             throw new Error('Invalid subscription object');
         }
 
-        const supabaseAdmin = createClient(
-            Deno.env.get('SUPABASE_URL') ?? '',
-            Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-        );
-
-        // Upsert subscription (using endpoint as pseudo-unique or just insert new ones)
-        // For simplicity, we just insert. If the exact same one exists, a proper setup might use JSONb query to check, 
-        // but here we just append or delete old ones later via the send worker.
-        const { error: insertError } = await supabaseAdmin
+        // 3. Upsert correctly using jsonb
+        const { error: upsertError } = await supabaseAdmin
             .from('push_subscriptions')
-            .insert({
+            .upsert({
                 user_id: user.id,
                 subscription: subscription
-            });
+            }, { onConflict: 'user_id' });
 
-        if (insertError) throw insertError;
+        if (upsertError) throw upsertError;
 
-        return new Response(JSON.stringify({ success: true }), {
+        // 4. Return proper JSON response
+        return new Response(JSON.stringify({
+            success: true,
+            user_id: user.id
+        }), {
+            status: 200,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
+
     } catch (err: any) {
-        return new Response(JSON.stringify({ error: err.message }), {
+        console.error("push_register Error:", err);
+        return new Response(JSON.stringify({ error: err.message, details: err }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });

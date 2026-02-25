@@ -15,18 +15,15 @@ function urlBase64ToUint8Array(base64String: string) {
     return outputArray;
 }
 
-export async function askNotificationPermission(): Promise<boolean> {
+export async function subscribeUserToPush(): Promise<{ success: boolean; error?: string }> {
     if (!('Notification' in window)) {
         console.warn("Browser tidak menyokong notifikasi desktop.");
-        return false;
+        return { success: false, error: "Browser tidak menyokong notifikasi desktop." };
     }
     const permission = await Notification.requestPermission();
-    return permission === 'granted';
-}
-
-export async function subscribeUserToPush() {
-    const isGranted = await askNotificationPermission();
-    if (!isGranted) return false;
+    if (permission !== 'granted') {
+        return { success: false, error: "Kebenaran notifikasi ditolak oleh pengguna." };
+    }
 
     // We need service worker registered for this.
     const registration = await navigator.serviceWorker.ready;
@@ -35,7 +32,7 @@ export async function subscribeUserToPush() {
     const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
     if (!vapidPublicKey) {
         console.error("VAPID_PUBLIC_KEY is not defined in env variables");
-        return false;
+        return { success: false, error: "Konfigurasi VAPID tidak dijumpai." };
     }
 
     const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
@@ -47,19 +44,35 @@ export async function subscribeUserToPush() {
         });
 
         // Save to DB via Edge function
-        const { error } = await supabase.functions.invoke('push_register', {
+        const { data, error } = await supabase.functions.invoke('push_register', {
             body: { subscription: JSON.parse(JSON.stringify(subscription)) },
         });
 
-        if (error) {
-            console.error("Gagal mendaftar push_subscription ke Supabase", error);
-            return false;
+        if (error || data?.error) {
+            let errMsg = 'Gagal mendaftar push_subscription ke Supabase';
+            if (error) {
+                console.error("Invoke error:", error);
+
+                // Try extracting JSON error from edge function if possible
+                try {
+                    if (error.context && typeof error.context.json === 'function') {
+                        const errBody = await error.context.json();
+                        errMsg = errBody.error || errMsg;
+                    } else if (error.message) {
+                        errMsg = error.message;
+                    }
+                } catch { }
+            } else {
+                errMsg = data.error;
+            }
+
+            return { success: false, error: errMsg };
         }
 
-        return true;
+        return { success: true };
 
     } catch (err: any) {
         console.error("Gagal melanggan Web Push", err);
-        return false;
+        return { success: false, error: err.message || "Gagal melanggan Web Push" };
     }
 }
