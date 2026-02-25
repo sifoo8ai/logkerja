@@ -24,6 +24,11 @@ export async function subscribeUserToPush(): Promise<{ success: boolean; error?:
     if (permission !== 'granted') {
         return { success: false, error: "Kebenaran notifikasi ditolak oleh pengguna." };
     }
+    console.log('PUSH: permission granted');
+
+    if (!navigator.serviceWorker) {
+        return { success: false, error: "Push not supported (Service Worker unavailable)." };
+    }
 
     // Check if service worker is actually registered, because navigator.serviceWorker.ready can hang infinitely if it's not.
     const swRegistration = await navigator.serviceWorker.getRegistration();
@@ -31,6 +36,9 @@ export async function subscribeUserToPush(): Promise<{ success: boolean; error?:
         return { success: false, error: "Service Worker tiada/belum sedia. Sila muat semula web, atau pastikan anda menggunakan HTTPS / Localhost." };
     }
     const registration = await navigator.serviceWorker.ready;
+    if (!registration) {
+        return { success: false, error: "Push not supported. Service worker not ready." };
+    }
 
     // VAPID keys ideally retrieved from config/env; using placeholder for logkerja project
     const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
@@ -42,11 +50,16 @@ export async function subscribeUserToPush(): Promise<{ success: boolean; error?:
     const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
 
     try {
-        const subscription = await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: convertedVapidKey
-        });
+        let subscription = await registration.pushManager.getSubscription();
+        if (!subscription) {
+            subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: convertedVapidKey
+            });
+        }
+        console.log('PUSH: subscription created', subscription);
 
+        console.log('PUSH: calling push_register');
         // Save to DB via Edge function
         const { data, error } = await supabase.functions.invoke('push_register', {
             body: { subscription: JSON.parse(JSON.stringify(subscription)) },
@@ -73,6 +86,7 @@ export async function subscribeUserToPush(): Promise<{ success: boolean; error?:
             return { success: false, error: errMsg };
         }
 
+        console.log('PUSH: push_register success');
         return { success: true };
 
     } catch (err: any) {

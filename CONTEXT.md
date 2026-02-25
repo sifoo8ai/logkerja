@@ -10,6 +10,6 @@ Completed:
 - BUGFIX-PROFILE-01: redesign profile page with corporate cards and icons
 - BUGFIX-TRANSITION-01: fix documents_transition payload/action mapping
 - BUGFIX-STATUSMODAL-01: fix pengesah detail status badge binding
-- BUGFIX-PUSH-03: fix push_register jsonb upsert and error handling
+- BUGFIX-PUSH-04: subscribe and register push after permission grant
 
 Next: final UAT polish
