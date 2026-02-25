@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
         }
 
         // Call RPC transition_document
-        const { error: dbError } = await supabaseAdmin.rpc('transition_document', {
+        const { error: dbError } = await supabaseUser.rpc('transition_document', {
             p_doc_id: doc_id,
             p_action: action,
             p_note: note || null

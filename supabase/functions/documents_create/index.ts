@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
             throw new Error('Missing required arguments untuk create_document');
         }
 
-        const { data: docId, error: dbError } = await supabaseAdmin.rpc('create_document', {
+        const { data: docId, error: dbError } = await supabaseUser.rpc('create_document', {
             p_ref_no: ref_no,
             p_cat_id: cat_id,
             p_desc: desc
