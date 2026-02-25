@@ -18,17 +18,33 @@ Deno.serve(async (req) => {
         const authHeader = req.headers.get('Authorization');
         if (!authHeader) throw new Error('Missing Authorization header');
 
-        const token = authHeader.replace('Bearer ', '');
+        const token = authHeader.replace('Bearer ', '').trim();
 
-        // 1. Use service role client in Edge function
+        if (!token) {
+            return new Response(JSON.stringify({ error: "Missing token" }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+        }
+
+        const supabaseUser = createClient(
+            Deno.env.get('SUPABASE_URL')!,
+            Deno.env.get('SUPABASE_ANON_KEY')!,
+            {
+                global: {
+                    headers: { Authorization: `Bearer ${token}` },
+                },
+            }
+        );
+
+        const { data: { user }, error: userError } = await supabaseUser.auth.getUser(token);
+
+        if (userError || !user) {
+            return new Response(JSON.stringify({ error: "Invalid JWT edge", details: userError }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+        }
+
+        // 1. Use service role client for DB upsert
         const supabaseAdmin = createClient(
             Deno.env.get('SUPABASE_URL') ?? '',
             Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
         );
-
-        // 2. Extract user from JWT using service role
-        const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
-        if (userError || !user) throw new Error('Unauthorized');
 
         const body = await req.json();
         const { subscription } = body;

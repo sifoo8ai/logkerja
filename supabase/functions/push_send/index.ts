@@ -78,6 +78,7 @@ Deno.serve(async (req) => {
         // Send notifications in parallel
         let successCount = 0;
         let failCount = 0;
+        let errorList: string[] = [];
 
         const sendPromises = subs.map(async (sub) => {
             try {
@@ -86,6 +87,7 @@ Deno.serve(async (req) => {
                 successCount++;
             } catch (err: any) {
                 failCount++;
+                errorList.push(`[${sub.id}] ${err.message}`);
                 // If subscription is invalid (404/410), delete it
                 if (err.statusCode === 404 || err.statusCode === 410) {
                     console.log(`[push_send] Deleting invalid subscription ${sub.id}`);
@@ -99,7 +101,7 @@ Deno.serve(async (req) => {
         await Promise.all(sendPromises);
         console.log(`[push_send] Finished. Success: ${successCount}, Failed: ${failCount}`);
 
-        return new Response(JSON.stringify({ success: true, sent_count: subs.length }), {
+        return new Response(JSON.stringify({ success: true, sent_count: subs.length, successCount, failCount, errors: errorList }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
     } catch (err: any) {
