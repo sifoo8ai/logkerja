@@ -22,7 +22,7 @@ export async function checkAndBootstrapProfile(user: any) {
         // Insert new profile
         const { data: newRow, error: insertError } = await supabase
             .from('profiles')
-            .upsert([newProfile], { onConflict: 'id' })
+            .insert([newProfile])
             .select()
             .single();
 
