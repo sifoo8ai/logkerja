@@ -82,7 +82,7 @@ export const BulkActionBar: React.FC<BulkActionBarProps> = ({ count, onApprove, 
                             disabled={!!loadingAction}
                             className="flex items-center text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-4 py-2 rounded-md font-medium text-sm transition-colors disabled:opacity-50"
                         >
-                            <XCircle size={16} className="mr-1" /> Tolak Seçilen
+                            <XCircle size={16} className="mr-1" /> Tolak Terpilih
                         </button>
                         <button
                             onClick={handleApprove}
@@ -90,7 +90,7 @@ export const BulkActionBar: React.FC<BulkActionBarProps> = ({ count, onApprove, 
                             className="flex items-center text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm px-4 py-2 rounded-md font-medium text-sm transition-colors disabled:opacity-50"
                         >
                             {loadingAction === 'approve' ? <Loader2 size={16} className="animate-spin mr-1" /> : <CheckCircle size={16} className="mr-1" />}
-                            Sahkan Seçilen
+                            Sahkan Terpilih
                         </button>
                     </div>
                 )}
