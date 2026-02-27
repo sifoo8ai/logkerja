@@ -5,6 +5,8 @@ import Topbar from './Topbar';
 import { supabase } from '../../lib/supabaseClient';
 import { getActiveRole, checkAndBootstrapProfile } from '../../lib/auth';
 import { ROLE_ROUTES } from '../../lib/roles';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
+import MobileShell from '../mobile/MobileShell';
 
 export const AppShell: React.FC = () => {
     const [loading, setLoading] = useState(true);
@@ -54,12 +56,20 @@ export const AppShell: React.FC = () => {
         };
     }, [navigate, location.pathname]);
 
+    const role = getActiveRole();
+    const isCompact = useMediaQuery('(max-width: 768px)');
+    const isMobileMode = isCompact && (role === 'PENGESAH' || role === 'PELULUS');
+
     if (loading) {
         return <div className="min-h-screen flex items-center justify-center bg-gray-50">Loading App...</div>;
     }
 
+    if (isMobileMode && role) {
+        return <MobileShell role={role} />;
+    }
+
     return (
-        <div className="flex bg-gray-50 font-sans">
+        <div className="flex bg-gray-50 font-sans h-screen overflow-hidden">
             <Sidebar />
             <div className="flex-1 flex flex-col overflow-hidden">
                 <Topbar />

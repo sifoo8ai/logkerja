@@ -10,8 +10,29 @@ import PenyemakDashboard from '../pages/dashboards/PenyemakDashboard';
 import PengesahDashboard from '../pages/dashboards/PengesahDashboard';
 import PelulusDashboard from '../pages/dashboards/PelulusDashboard';
 
+import { useMediaQuery } from '../hooks/useMediaQuery';
+
+// Mobile Pages
+import PengesahHomeMobile from '../pages/mobile/pengesah/PengesahHomeMobile';
+import PengesahTindakanMobile from '../pages/mobile/pengesah/PengesahTindakanMobile';
+import PengesahHistoryMobile from '../pages/mobile/pengesah/PengesahHistoryMobile';
+import PelulusHomeMobile from '../pages/mobile/pelulus/PelulusHomeMobile';
+import PelulusTindakanMobile from '../pages/mobile/pelulus/PelulusTindakanMobile';
+import PelulusHistoryMobile from '../pages/mobile/pelulus/PelulusHistoryMobile';
+
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
+
+const PengesahIndex = () => {
+    const isCompact = useMediaQuery('(max-width: 768px)');
+    return isCompact ? <Navigate to="home" replace /> : <PengesahDashboard />;
+};
+
+const PelulusIndex = () => {
+    const isCompact = useMediaQuery('(max-width: 768px)');
+    return isCompact ? <Navigate to="home" replace /> : <PelulusDashboard />;
+};
+
 
 export const AppRouter = () => {
     const [loading, setLoading] = useState(true);
@@ -49,8 +70,22 @@ export const AppRouter = () => {
 
                 <Route path="admin" element={<AdminDashboard />} />
                 <Route path="penyemak" element={<PenyemakDashboard />} />
-                <Route path="pengesah" element={<PengesahDashboard />} />
-                <Route path="pelulus" element={<PelulusDashboard />} />
+
+                <Route path="pengesah">
+                    <Route index element={<PengesahIndex />} />
+                    <Route path="home" element={<PengesahHomeMobile />} />
+                    <Route path="tindakan" element={<PengesahTindakanMobile />} />
+                    <Route path="history" element={<PengesahHistoryMobile />} />
+                    <Route path="profile" element={<Profile />} />
+                </Route>
+
+                <Route path="pelulus">
+                    <Route index element={<PelulusIndex />} />
+                    <Route path="home" element={<PelulusHomeMobile />} />
+                    <Route path="tindakan" element={<PelulusTindakanMobile />} />
+                    <Route path="history" element={<PelulusHistoryMobile />} />
+                    <Route path="profile" element={<Profile />} />
+                </Route>
             </Route>
 
             {/* Catch-all */}

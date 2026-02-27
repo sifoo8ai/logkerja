@@ -18,3 +18,7 @@ Completed:
 - BUGFIX-JWT-EDGE-04: Fix Invalid JWT in push_register and update push_send to return detailed error array
 
 All Web Push Notification UAT passed successfully! 🎉
+
+- T7.1: Mobile/Sidepanel shell + bottom nav + Home KPI realtime (Completed)
+
+Next: T7.2 polish modal + badge + UX refinements

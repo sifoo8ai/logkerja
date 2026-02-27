@@ -17,6 +17,17 @@ export async function fetchPelulusDocuments(userId: string): Promise<DocumentRow
     return data as any;
 }
 
+export async function fetchPelulusPendingCount(userId: string): Promise<number> {
+    const { count, error } = await supabase
+        .from('documents')
+        .select('*', { count: 'exact', head: true })
+        .eq('approver_id', userId)
+        .eq('current_status', 'PENDING_APPROVER');
+
+    if (error) throw error;
+    return count || 0;
+}
+
 export async function fetchPelulusHistory(userId: string) {
     const { data, error } = await supabase
         .from('document_actions')

@@ -33,6 +33,17 @@ export async function fetchAssignedDocuments(userId: string): Promise<DocumentRo
     return data as any;
 }
 
+export async function fetchPengesahPendingCount(userId: string): Promise<number> {
+    const { count, error } = await supabase
+        .from('documents')
+        .select('*', { count: 'exact', head: true })
+        .eq('verifier_id', userId)
+        .eq('current_status', 'PENDING_VERIFIER');
+
+    if (error) throw error;
+    return count || 0;
+}
+
 export async function fetchPengesahHistory(userId: string) {
     const { data, error } = await supabase
         .from('document_actions')
