@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { subscribeUserToPush } from '../features/notifications/pushClient';
-import { fetchUserRoles, getActiveRole } from '../lib/auth';
-import { User, Mail, Hash, BadgeCheck, Ban, Shield, Layers, Bell, BellOff, Lock } from 'lucide-react';
+import { fetchUserRoles, getActiveRole, signOut } from '../lib/auth';
+import { User, Mail, Hash, BadgeCheck, Ban, Shield, Layers, Bell, BellOff, Lock, LogOut } from 'lucide-react';
 
 const Profile: React.FC = () => {
+    const navigate = useNavigate();
     const [profile, setProfile] = useState<any>(null);
     const [roles, setRoles] = useState<string[]>([]);
     const [activeRole, setActiveRoleState] = useState<string | null>(null);
@@ -195,6 +197,19 @@ const Profile: React.FC = () => {
                         <div className="flex flex-col">
                             <span className="text-sm text-gray-500 mb-1">Penyedia Sesi (Provider)</span>
                             <span className="text-sm font-medium text-gray-900">{sessionProvider || '—'}</span>
+                        </div>
+
+                        <div className="pt-4 mt-2 border-t border-slate-100">
+                            <button
+                                onClick={async () => {
+                                    await signOut();
+                                    navigate('/login');
+                                }}
+                                className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 bg-red-50 text-red-600 rounded-lg text-sm font-medium hover:bg-red-100 focus:outline-none transition-colors border border-red-200 shadow-sm"
+                            >
+                                <LogOut size={18} className="mr-2" />
+                                Log Keluar
+                            </button>
                         </div>
                     </div>
                 </div>
