@@ -51,7 +51,7 @@ export const PengesahHomeMobile: React.FC = () => {
 
     return (
         <div className="p-4 space-y-6 max-w-md mx-auto relative">
-            <h2 className="text-xl font-bold text-gray-800">Home</h2>
+            <h2 className="text-[22px] font-extrabold text-[#1a2b4b]">Home</h2>
             <PendingKpiCard
                 count={count}
                 loading={loading}

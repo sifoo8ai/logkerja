@@ -30,7 +30,7 @@ export const PengesahHistoryMobile: React.FC = () => {
     return (
         <div className="p-4 space-y-4 max-w-md mx-auto pb-24">
             <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-800">Sejarah</h2>
+                <h2 className="text-[22px] font-extrabold text-[#1a2b4b]">Sejarah</h2>
                 <button onClick={loadData} className="p-2 bg-white rounded-full shadow-sm text-gray-500">
                     <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
                 </button>

@@ -20,5 +20,6 @@ Completed:
 All Web Push Notification UAT passed successfully! 🎉
 
 - T7.1: Mobile/Sidepanel shell + bottom nav + Home KPI realtime (Completed)
+- T7.3: Extension badge counter + icon update (Completed)
 
 Next: T7.2 polish modal + badge + UX refinements
