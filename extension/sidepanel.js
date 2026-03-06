@@ -11,7 +11,11 @@ document.getElementById('refreshBtn').addEventListener('click', () => {
 // Update badge count from app
 window.addEventListener('message', (event) => {
     // Only accept messages from localhost or allowed domains
-    const allowedOrigins = ['http://localhost:5173', 'http://localhost:4173'];
+    const allowedOrigins = [
+        'http://localhost:5173',
+        'http://localhost:4173',
+        'https://logkerja.vercel.app'
+    ];
     if (!allowedOrigins.includes(event.origin)) return;
 
     if (event.data && event.data.type === 'LOGKERJA_PENDING') {

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface PendingKpiCardProps {
@@ -10,14 +10,6 @@ interface PendingKpiCardProps {
 
 export const PendingKpiCard: React.FC<PendingKpiCardProps> = ({ count, loading, userName, targetRoute }) => {
     const navigate = useNavigate();
-
-    // Notify extension sidepanel whenever the pending count changes
-    useEffect(() => {
-        const inIframe = window.self !== window.top;
-        if (inIframe && count !== undefined) {
-            window.parent.postMessage({ type: "LOGKERJA_PENDING", count: count }, "*");
-        }
-    }, [count]);
 
     return (
         // Kad utama
