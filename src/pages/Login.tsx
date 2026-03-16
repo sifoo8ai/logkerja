@@ -22,15 +22,25 @@ const Login: React.FC = () => {
 
         const handleMessage = async (event: MessageEvent) => {
             if (event.data?.type === 'popup-login-success') {
-                // Sesi berjaya dicapai dalam popup. 
-                // Disebabkan Chrome extension mengasingkan (partition) localStorage di dalam iframe,
-                // kita perlu set sesi yang dibawa dari popup ke dalam Supabase iframe secara manual!
                 if (event.data.session) {
-                    await supabase.auth.setSession({
-                        access_token: event.data.session.access_token,
-                        refresh_token: event.data.session.refresh_token
-                    });
+                    try {
+                        // 1. Simpanan Sandaran Manual (Manual Fallback)
+                        // Bermanfaat jika iframe disekat daripada melakukan 'setSession' disebabkan third-party origin.
+                        const authKey = 'sb-csimvhrkwpoeyncqxvus-auth-token';
+                        localStorage.setItem(authKey, JSON.stringify(event.data.session));
+                        
+                        // 2. Cuba untuk menggunakan setSession API
+                        // Kita tidak guna `await` supaya browser tidak tersadung (stuck) jika Supabase memberi 403
+                        supabase.auth.setSession({
+                            access_token: event.data.session.access_token,
+                            refresh_token: event.data.session.refresh_token
+                        }).catch(e => console.warn("Supabase setSession amaran:", e));
+                        
+                    } catch (e) {
+                        console.error("Gagal simpan sesi:", e);
+                    }
                 }
+                // Paksa tetingkap iframe diperbaharui tanpa mengira setSession berjaya atau lambat
                 window.location.replace('/app');
             }
         };
