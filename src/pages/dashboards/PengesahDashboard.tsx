@@ -39,10 +39,10 @@ const PengesahDashboard: React.FC = () => {
         let subscription: any;
 
         const init = async () => {
-            const { data } = await supabase.auth.getUser();
-            if (data.user) {
-                setUserId(data.user.id);
-                await loadData(data.user.id);
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+                setUserId(session.user.id);
+                await loadData(session.user.id);
 
                 // Setup realtime subscription scoped to verifier_id
                 subscription = supabase.channel('pengesah-docs')
@@ -52,11 +52,11 @@ const PengesahDashboard: React.FC = () => {
                             event: '*',
                             schema: 'public',
                             table: 'documents',
-                            filter: `verifier_id=eq.${data.user.id}`
+                            filter: `verifier_id=eq.${session.user.id}`
                         },
                         () => {
                             // Soft reload data on changes
-                            loadData(data.user.id);
+                            loadData(session.user.id);
                         }
                     )
                     .subscribe();

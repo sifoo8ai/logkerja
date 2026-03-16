@@ -44,10 +44,10 @@ const PelulusDashboard: React.FC = () => {
         let subscription: any;
 
         const init = async () => {
-            const { data } = await supabase.auth.getUser();
-            if (data.user) {
-                setUserId(data.user.id);
-                await loadData(data.user.id);
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+                setUserId(session.user.id);
+                await loadData(session.user.id);
 
                 // Setup realtime subscription scoped to approver_id
                 subscription = supabase.channel('pelulus-docs')
@@ -57,11 +57,11 @@ const PelulusDashboard: React.FC = () => {
                             event: '*',
                             schema: 'public',
                             table: 'documents',
-                            filter: `approver_id=eq.${data.user.id}`
+                            filter: `approver_id=eq.${session.user.id}`
                         },
                         () => {
                             // Soft reload data on changes
-                            loadData(data.user.id);
+                            loadData(session.user.id);
                         }
                     )
                     .subscribe();
