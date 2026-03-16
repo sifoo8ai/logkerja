@@ -38,12 +38,22 @@ export const AppRouter = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        supabase.auth.getSession().then(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
             setLoading(false);
+            // Jika berjaya log masuk dan ini ialah popup window, tutupnya
+            if (session && window.opener) {
+                window.opener.postMessage({ type: 'popup-login-success', session }, '*');
+                window.close();
+            }
         });
 
-        const { data: authListener } = supabase.auth.onAuthStateChange(() => {
+        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
             setLoading(false);
+            // Tutup jika auth state bertukar kepada log masuk pada popup
+            if (session && window.opener) {
+                window.opener.postMessage({ type: 'popup-login-success', session }, '*');
+                window.close();
+            }
         });
 
         return () => {

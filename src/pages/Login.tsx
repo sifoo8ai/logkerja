@@ -20,21 +20,65 @@ const Login: React.FC = () => {
             }
         });
 
+        const handleMessage = async (event: MessageEvent) => {
+            if (event.data?.type === 'popup-login-success') {
+                // Sesi berjaya dicapai dalam popup. 
+                // Disebabkan Chrome extension mengasingkan (partition) localStorage di dalam iframe,
+                // kita perlu set sesi yang dibawa dari popup ke dalam Supabase iframe secara manual!
+                if (event.data.session) {
+                    await supabase.auth.setSession({
+                        access_token: event.data.session.access_token,
+                        refresh_token: event.data.session.refresh_token
+                    });
+                }
+                window.location.replace('/app');
+            }
+        };
+
+        window.addEventListener('message', handleMessage);
+
         return () => {
             authListener.subscription.unsubscribe();
+            window.removeEventListener('message', handleMessage);
         };
     }, [navigate]);
 
     const handleGoogleLogin = async () => {
         setIsLoggingIn(true); // Aktifkan loading animation
         try {
-            const { error } = await supabase.auth.signInWithOAuth({
+            const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
                     redirectTo: `${window.location.origin}/app`,
+                    skipBrowserRedirect: true, // Elak redirect di dalam side panel
                 },
             });
+            
             if (error) throw error;
+
+            if (data?.url) {
+                // Buka dalam tab/tetingkap baru untuk elakkan is 403 dari Google (sekat iframe)
+                const width = 500;
+                const height = 600;
+                const left = window.screenX + (window.outerWidth - width) / 2;
+                const top = window.screenY + (window.outerHeight - height) / 2;
+                
+                const popup = window.open(
+                    data.url,
+                    'GoogleLogin',
+                    `width=${width},height=${height},left=${left},top=${top}`
+                );
+
+                // Pemerhatian (polling) untuk mengesan sekiranya popup ditutup oleh pengguna
+                const timer = setInterval(() => {
+                    if (popup && popup.closed) {
+                        clearInterval(timer);
+                        // Jika popup telah tutup dan tiada signal 'popup-login-success' di atas, 
+                        // bermakna pengguna pangkah tetingkap (batal)
+                        setIsLoggingIn(false);
+                    }
+                }, 1000);
+            }
         } catch (error: any) {
             console.error("Login failed:", error.message);
             alert("Ralat log masuk. Sila cuba lagi.");
