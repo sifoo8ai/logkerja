@@ -1,0 +1,24 @@
+name: Supabase Keep-Alive Ping
+
+on:
+  schedule:
+    # Berjalan pada pukul 12:00 pagi setiap hari (Waktu UTC)
+    - cron: '0 0 * * *'
+  # Membolehkan anda tekan butang "Run workflow" secara manual di menu "Actions" GitHub
+  workflow_dispatch:
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ping Supabase REST API
+        # Supabase API cukup untuk mengaktifkan status "Activity" 
+        # Kita panggil laluan dokumen kategory untuk pertanyaan ringan (lightweight)
+        run: |
+          curl -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+               -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+               "${{ secrets.SUPABASE_URL }}/rest/v1/document_categories?select=*&limit=1"
+        
+      - name: Log Result
+        run: echo "Ping berjaya dihantar ke Supabase LogKerja."
