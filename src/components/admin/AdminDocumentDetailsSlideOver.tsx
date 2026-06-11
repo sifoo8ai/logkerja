@@ -124,7 +124,9 @@ export const AdminDocumentDetailsSlideOver: React.FC<AdminDocumentDetailsSlideOv
             onStatusChange();
             onClose();
         } catch (err: any) {
-            setError(err.message || 'Gagal memadam dokumen.');
+            // Displays actual error from Supabase
+            const errorMsg = err instanceof Error ? err.message : (err?.message || 'Gagal memadam dokumen.');
+            setError(errorMsg);
         } finally {
             setIsActioning(null);
         }

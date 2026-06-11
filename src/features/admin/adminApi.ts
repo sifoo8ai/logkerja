@@ -49,7 +49,12 @@ export async function deleteDocument(docId: string) {
         .delete()
         .eq('id', docId);
 
-    if (error) throw error;
+    if (error) {
+        const fullMessage = error.details 
+            ? `${error.message} (${error.details})` 
+            : error.message;
+        throw new Error(fullMessage);
+    }
     return true;
 }
 
