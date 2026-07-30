@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07101f">
+  <title>LogKerja — Sistem Notifikasi Tindakan Berpusat</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f7f9fc;
+      --muted: #aeb8ca;
+      --cyan: #67dbe7;
+      --indigo: #7184f5;
+      --green: #65d6b1;
+      --amber: #efbd73;
+      --danger: #e97b76;
+      --ease: cubic-bezier(.22,.8,.24,1);
+      --edge: clamp(24px,4.5vw,86px);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { width: 100%; height: 100%; }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #02050b;
+      color: var(--ink);
+      font-family: "Aptos", "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
+      user-select: none;
+    }
+
+    button { font: inherit; }
+
+    .stage {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      isolation: isolate;
+      background: #07101f;
+    }
+
+    .stage::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 40;
+      pointer-events: none;
+      box-shadow: inset 0 0 140px rgba(0,0,0,.48);
+    }
+
+    .noise {
+      position: absolute;
+      inset: 0;
+      z-index: 35;
+      opacity: .035;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity .75s var(--ease), visibility .75s;
+    }
+
+    .scene.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .scene-grid::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: clamp(42px,5vw,92px) clamp(42px,5vw,92px);
+      mask-image: radial-gradient(circle at center, black 0, transparent 75%);
+    }
+
+    .eyebrow {
+      margin: 0 0 clamp(12px,1.6vw,28px);
+      color: var(--muted);
+      font-size: clamp(12px,1.08vw,21px);
+      font-weight: 700;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+    }
+
+    .landing {
+      z-index: 50;
+      background:
+        radial-gradient(circle at 50% 38%, rgba(77,101,193,.24), transparent 34%),
+        linear-gradient(145deg, #07101f 0%, #091527 55%, #050b15 100%);
+      transition: opacity .8s var(--ease), visibility .8s;
+    }
+
+    .landing.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    .institution {
+      position: absolute;
+      top: clamp(22px,3.5vw,64px);
+      left: var(--edge);
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .institution img {
+      width: clamp(155px,15vw,285px);
+      height: auto;
+      padding: clamp(7px,.65vw,12px) clamp(9px,.85vw,16px);
+      border-radius: 10px;
+      background: rgba(255,255,255,.94);
+      box-shadow: 0 10px 30px rgba(0,0,0,.18);
+    }
+
+    .institution::after {
+      content: "HKIP UPM 2025–2026";
+      padding-left: 18px;
+      border-left: 1px solid rgba(255,255,255,.22);
+      color: #bac4d5;
+      font-size: clamp(10px,.9vw,16px);
+      font-weight: 650;
+      letter-spacing: .14em;
+    }
+
+    .landing-main { text-align: center; transform: translateY(1.5vh); }
+
+    .mark-shell {
+      width: clamp(72px,6vw,112px);
+      height: clamp(72px,6vw,112px);
+      display: grid;
+      place-items: center;
+      margin: 0 auto clamp(20px,2vw,36px);
+      border: 1px solid rgba(122,142,246,.32);
+      border-radius: 25%;
+      background: rgba(51,72,161,.18);
+      box-shadow: 0 24px 70px rgba(0,0,0,.32);
+    }
+
+    .mark-shell img { width: 68%; height: 68%; object-fit: contain; }
+
+    .landing h1 {
+      margin: 0;
+      font-size: clamp(46px,7vw,134px);
+      line-height: .92;
+      letter-spacing: -.055em;
+      font-weight: 800;
+    }
+
+    .landing-sub {
+      margin: clamp(16px,2vw,30px) 0 0;
+      color: #bdc7d8;
+      font-size: clamp(15px,1.35vw,26px);
+      letter-spacing: .06em;
+    }
+
+    .start-button {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: clamp(30px,3.8vw,68px);
+      padding: clamp(14px,1.3vw,22px) clamp(25px,2.4vw,46px);
+      border: 1px solid rgba(127,145,244,.55);
+      border-radius: 999px;
+      color: white;
+      background: linear-gradient(115deg, #4259d9, #5167e8);
+      box-shadow: 0 12px 38px rgba(51,70,183,.25);
+      font-size: clamp(14px,1.15vw,21px);
+      font-weight: 720;
+      cursor: pointer;
+      transition: transform .25s var(--ease), box-shadow .25s, background .25s;
+    }
+
+    .start-button:hover { transform: translateY(-2px); box-shadow: 0 18px 50px rgba(68,88,213,.4); }
+    .start-button:focus-visible { outline: 3px solid rgba(103,219,231,.65); outline-offset: 5px; }
+    .start-button svg { width: 1em; height: 1em; }
+
+    .audio-note {
+      margin-top: 18px;
+      color: #8793a8;
+      font-size: clamp(11px,.9vw,16px);
+      letter-spacing: .04em;
+    }
+
+    /* Scene 1 */
+    #scene-1 {
+      background:
+        radial-gradient(circle at 50% 48%, rgba(104,123,155,.2), transparent 30%),
+        linear-gradient(145deg, #101826, #080d16 68%);
+    }
+
+    .doc-hero { position: relative; z-index: 3; text-align: center; }
+
+    .doc-count {
+      margin: 0;
+      font-size: clamp(120px,18vw,340px);
+      line-height: .75;
+      font-weight: 820;
+      letter-spacing: -.08em;
+      color: #f8fafc;
+      text-shadow: 0 16px 65px rgba(0,0,0,.5);
+    }
+
+    .doc-caption {
+      margin: clamp(30px,4vw,70px) 0 0;
+      color: #d3d9e4;
+      font-size: clamp(18px,1.8vw,34px);
+      font-weight: 520;
+    }
+
+    .doc-caption strong { color: white; font-weight: 720; }
+
+    .floating-doc {
+      position: absolute;
+      width: clamp(58px,6vw,110px);
+      aspect-ratio: .76;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 9px;
+      background: linear-gradient(145deg, rgba(255,255,255,.13), rgba(255,255,255,.035));
+      opacity: 0;
+      transition: transform 2.4s var(--ease), opacity .8s;
+      box-shadow: 0 18px 50px rgba(0,0,0,.2);
+    }
+
+    .floating-doc::before, .floating-doc::after {
+      content: "";
+      position: absolute;
+      left: 18%; right: 18%;
+      height: 1px;
+      background: rgba(255,255,255,.18);
+      box-shadow: 0 12px rgba(255,255,255,.12), 0 24px rgba(255,255,255,.1);
+    }
+    .floating-doc::before { top: 28%; }
+    .floating-doc::after { top: 63%; right: 38%; }
+
+    /* Scene 2 */
+    #scene-2 {
+      background:
+        radial-gradient(circle at 50% 42%, rgba(92,107,139,.14), transparent 38%),
+        linear-gradient(150deg, #111826, #080c14);
+    }
+
+    .staff-layout {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(240px,35vw) minmax(350px,42vw);
+      align-items: center;
+      gap: clamp(35px,7vw,130px);
+      width: min(86vw,1500px);
+    }
+
+    .staff-visual { position: relative; display: grid; place-items: center; aspect-ratio: 1; }
+    .staff-ring { position: absolute; border: 1px solid rgba(255,255,255,.1); border-radius: 50%; }
+    .staff-ring.one { inset: 4%; }
+    .staff-ring.two { inset: 18%; border-color: rgba(113,132,245,.25); }
+    .staff-avatar {
+      width: 42%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center;
+      background: linear-gradient(145deg, #263145, #151d2b);
+      border: 1px solid rgba(255,255,255,.15);
+      box-shadow: 0 28px 80px rgba(0,0,0,.38);
+    }
+    .staff-avatar svg { width: 54%; color: #bac3d1; }
+
+    .task-dot {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      width: clamp(43px,4vw,72px);
+      aspect-ratio: 1;
+      border-radius: 18px;
+      background: rgba(30,40,58,.85);
+      border: 1px solid rgba(255,255,255,.12);
+      color: #aab5c5;
+      font-size: clamp(12px,1.25vw,22px);
+      font-weight: 750;
+      box-shadow: 0 14px 36px rgba(0,0,0,.28);
+    }
+    .task-dot.a { left: 5%; top: 21%; transform: rotate(-8deg); }
+    .task-dot.b { right: 4%; top: 19%; transform: rotate(6deg); }
+    .task-dot.c { left: 8%; bottom: 16%; transform: rotate(5deg); }
+    .task-dot.d { right: 7%; bottom: 13%; transform: rotate(-6deg); }
+
+    .staff-copy h2 {
+      margin: 0;
+      font-size: clamp(38px,5vw,90px);
+      line-height: 1.03;
+      letter-spacing: -.045em;
+      font-weight: 780;
+    }
+    .staff-copy h2 span { color: #8f9db1; }
+    .staff-copy p {
+      max-width: 650px;
+      margin: 26px 0 0;
+      color: #bbc4d2;
+      font-size: clamp(17px,1.55vw,29px);
+      line-height: 1.55;
+    }
+
+    /* Scene 3 */
+    #scene-3 {
+      background:
+        radial-gradient(circle at 50% 50%, rgba(159,63,67,.18), transparent 31%),
+        linear-gradient(135deg, #1b1118, #0c0b11 62%, #151018);
+    }
+
+    .chaos-field { position: absolute; inset: 5.5% 4%; z-index: 3; }
+    .chaos-core {
+      position: absolute;
+      left: 50%; top: 50%;
+      width: clamp(220px,20.5vw,394px);
+      aspect-ratio: 1;
+      transform: translate(-50%,-50%);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(67,36,43,.98), rgba(22,17,22,.92) 67%);
+      border: 1px solid rgba(233,123,118,.25);
+      box-shadow: 0 35px 100px rgba(0,0,0,.46);
+    }
+
+    .chaos-core::before, .chaos-core::after {
+      content: ""; position: absolute; border-radius: 50%; border: 1px solid rgba(233,123,118,.12);
+    }
+    .chaos-core::before { inset: -13%; }
+    .chaos-core::after { inset: -27%; border-style: dashed; }
+    .chaos-core b { display: block; font-size: clamp(15px,1.5vw,28px); letter-spacing: .16em; line-height: 1.45; }
+    .chaos-core span { display: block; margin-top: 10px; color: #d29c9a; font-size: clamp(11px,1vw,18px); }
+
+    .signal-card {
+      position: absolute;
+      width: clamp(310px,29vw,520px);
+      min-height: clamp(120px,10.5vw,190px);
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: clamp(18px,1.75vw,30px);
+      padding: clamp(20px,1.8vw,32px);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: clamp(16px,1.4vw,25px);
+      background: rgba(24,20,25,.84);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 22px 65px rgba(0,0,0,.38);
+      opacity: 0;
+      transform: translateY(20px) scale(.96);
+      transition: opacity .55s var(--ease), transform .65s var(--ease);
+    }
+    .signal-card.shown { opacity: 1; transform: none; }
+    .signal-card.wa { top: 2%; left: 0; }
+    .signal-card.email { top: 3%; right: 0; }
+    .signal-card.phone { bottom: 1%; left: 1.5%; }
+    .signal-card.finance { bottom: 0; right: 1%; }
+
+    .signal-icon {
+      width: clamp(56px,5vw,88px); aspect-ratio: 1; border-radius: 20px;
+      display: grid; place-items: center; background: rgba(255,255,255,.055);
+      border: 1px solid rgba(255,255,255,.1); color: #d9dee7;
+    }
+    .signal-icon svg { width: 45%; }
+    .signal-card.wa .signal-icon { color: #70d0aa; }
+    .signal-card.email .signal-icon, .signal-card.phone .signal-icon { color: var(--danger); }
+    .signal-card.finance .signal-icon { color: var(--amber); }
+    .signal-label { color: #aeb8ca; font-size: clamp(12px,1vw,18px); font-weight: 760; letter-spacing: .12em; text-transform: uppercase; }
+    .signal-title { margin-top: 9px; color: white; font-size: clamp(18px,1.4vw,26px); font-weight: 710; line-height: 1.3; }
+    .signal-meta { margin-top: 8px; color: #bac3d1; font-size: clamp(14px,1.05vw,19px); line-height: 1.4; }
+    .ref-chip { display: inline-block; margin-top: 10px; padding: 7px 11px; border-radius: 8px; background: rgba(255,255,255,.075); color: #eef2f8; font: 700 clamp(13px,1vw,18px) Consolas, monospace; letter-spacing: .025em; }
+
+    /* Scene 4 */
+    #scene-4 {
+      background:
+        radial-gradient(circle at 22% 24%, rgba(152,59,62,.12), transparent 30%),
+        linear-gradient(145deg, #111727, #090e19 72%);
+    }
+
+    .question-wrap { width: min(86vw,1560px); position: relative; z-index: 2; }
+    .question-rule { width: clamp(60px,6vw,115px); height: 4px; background: var(--danger); margin-bottom: clamp(25px,3vw,55px); }
+    .question-wrap h2 {
+      margin: 0;
+      max-width: 1450px;
+      font-size: clamp(38px,5.6vw,105px);
+      line-height: 1.06;
+      letter-spacing: -.045em;
+      font-weight: 760;
+    }
+    .question-wrap h2 span { color: #9ca8ba; }
+    .question-wrap .accent { color: #f0a09a; }
+    .reveal-line { display: block; opacity: 0; transform: translateY(24px); transition: opacity .75s var(--ease), transform .75s var(--ease); }
+    .reveal-line.shown { opacity: 1; transform: none; }
+
+    /* Scene 5 */
+    #scene-5 {
+      background:
+        radial-gradient(circle at 72% 34%, rgba(75,91,190,.25), transparent 30%),
+        linear-gradient(140deg, #0a1428, #111d43 55%, #0b1430);
+    }
+
+    .pivot-wrap { width: min(86vw,1540px); position: relative; z-index: 2; text-align: center; }
+    .pivot-kicker { color: #91a3fb; font-size: clamp(16px,1.5vw,28px); font-weight: 760; letter-spacing: .18em; text-transform: uppercase; }
+    .pivot-wrap h2 {
+      margin: clamp(22px,3vw,52px) auto 0;
+      max-width: 1450px;
+      font-size: clamp(40px,6vw,112px);
+      line-height: 1.05;
+      letter-spacing: -.05em;
+      font-weight: 780;
+    }
+    .pivot-wrap h2 span { color: var(--green); }
+    .pivot-line { width: 0; height: 2px; margin: clamp(28px,4vw,66px) auto 0; background: linear-gradient(90deg, transparent, var(--cyan), transparent); transition: width 1.2s var(--ease); }
+    .pivot-line.shown { width: min(58vw,960px); }
+
+    /* Scene 6 */
+    #scene-6 {
+      background:
+        radial-gradient(circle at 50% 43%, rgba(79,102,227,.28), transparent 32%),
+        radial-gradient(circle at 50% 50%, rgba(73,193,205,.08), transparent 56%),
+        linear-gradient(145deg, #071327, #0b1934 62%, #071126);
+    }
+
+    .hero-reveal { position: relative; z-index: 3; text-align: center; opacity: 0; transform: scale(.94); transition: opacity 1s var(--ease), transform 1.15s var(--ease); }
+    .hero-reveal.shown { opacity: 1; transform: none; }
+    .hero-mark {
+      width: clamp(78px,7vw,132px); aspect-ratio: 1; margin: 0 auto clamp(21px,2.5vw,42px); display: grid; place-items: center;
+      border-radius: 27%; background: rgba(54,73,184,.2); border: 1px solid rgba(115,139,246,.4);
+      box-shadow: 0 24px 75px rgba(38,58,172,.3);
+    }
+    .hero-mark img { width: 68%; height: 68%; object-fit: contain; }
+    .hero-reveal h1 { margin: 0; font-size: clamp(72px,11vw,210px); line-height: .82; letter-spacing: -.075em; font-weight: 840; }
+    .full-name { margin: clamp(25px,3vw,50px) 0 0; color: #c0cadb; font-size: clamp(16px,1.5vw,29px); font-weight: 630; letter-spacing: .13em; text-transform: uppercase; }
+    .value-line { margin: clamp(22px,2.2vw,38px) auto 0; color: white; font-size: clamp(18px,1.8vw,34px); font-weight: 520; letter-spacing: .02em; }
+    .team-tag { display: inline-flex; margin-top: clamp(25px,3vw,50px); padding: 9px 16px; border: 1px solid rgba(255,255,255,.15); border-radius: 999px; color: #aebbd0; font-size: clamp(10px,.85vw,15px); font-weight: 700; letter-spacing: .16em; }
+
+    .next-button {
+      position: absolute;
+      left: 50%; bottom: clamp(26px,3vw,54px); z-index: 6;
+      transform: translate(-50%,12px);
+      display: inline-flex; align-items: center; gap: 12px;
+      padding: 12px 19px;
+      border: 1px solid rgba(103,219,231,.25); border-radius: 999px;
+      background: rgba(6,16,33,.5); color: #d5deec;
+      opacity: 0; cursor: pointer;
+      transition: opacity .7s, transform .7s var(--ease), background .25s;
+    }
+    .next-button.shown { opacity: 1; transform: translate(-50%,0); }
+    .next-button:hover { background: rgba(55,76,159,.34); }
+    .next-button span { font-size: clamp(11px,.9vw,16px); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .next-button svg { width: 20px; }
+
+    .shockwave {
+      position: absolute; left: 50%; top: 50%; width: 8vw; aspect-ratio: 1; border: 1px solid rgba(103,219,231,.75); border-radius: 50%;
+      transform: translate(-50%,-50%) scale(.15); opacity: 0; pointer-events: none;
+    }
+    .shockwave.run { animation: wave 1.3s var(--ease) forwards; }
+    @keyframes wave { 0% { opacity: .8; transform: translate(-50%,-50%) scale(.15); } 100% { opacity: 0; transform: translate(-50%,-50%) scale(8); } }
+
+    /* Presentation controls */
+    .controls {
+      position: absolute; left: clamp(14px,1.4vw,26px); bottom: clamp(14px,1.4vw,26px); z-index: 70;
+      display: flex; gap: 8px; opacity: .16; transition: opacity .25s;
+    }
+    .controls:hover, .controls:focus-within { opacity: 1; }
+    .control-btn {
+      width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.14); background: rgba(5,10,19,.7); color: #d7dfeb; cursor: pointer;
+    }
+    .control-btn:hover { background: rgba(48,62,102,.8); }
+    .control-btn svg { width: 17px; height: 17px; }
+
+    .progress { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; z-index: 65; background: rgba(255,255,255,.05); }
+    .progress-fill { height: 100%; width: 0; background: linear-gradient(90deg,var(--indigo),var(--cyan)); transform-origin: left; }
+
+    .error-toast {
+      position: absolute; left: 50%; bottom: 8%; z-index: 90; transform: translate(-50%,20px);
+      max-width: min(88vw,680px); padding: 15px 20px; border: 1px solid rgba(233,123,118,.45); border-radius: 14px;
+      background: rgba(55,22,27,.93); color: #ffe4e2; font-size: 14px; opacity: 0; visibility: hidden; transition: .3s;
+    }
+    .error-toast.shown { opacity: 1; visibility: visible; transform: translate(-50%,0); }
+
+    .module-bridge {
+      position: absolute; inset: 0; z-index: 85; display: grid; place-items: center; text-align: center;
+      background: #060d19; opacity: 0; visibility: hidden; transition: opacity .65s var(--ease), visibility .65s;
+    }
+    .module-bridge.shown { opacity: 1; visibility: visible; }
+    .bridge-inner { transform: translateY(16px); transition: transform .8s var(--ease); }
+    .module-bridge.shown .bridge-inner { transform: none; }
+    .bridge-index { color: var(--cyan); font-size: clamp(12px,1vw,18px); font-weight: 760; letter-spacing: .2em; }
+    .module-bridge h2 { margin: 20px 0 0; font-size: clamp(38px,5vw,92px); letter-spacing: -.04em; }
+    .bridge-team { margin: 20px 0 0; color: #9ca8bb; font-size: clamp(16px,1.4vw,26px); }
+
+    @media (max-width: 760px), (max-aspect-ratio: 4/3) {
+      .institution::after { display: none; }
+      .staff-layout { grid-template-columns: 1fr; gap: 10px; text-align: center; }
+      .staff-visual { width: min(48vw,340px); margin: 0 auto; }
+      .staff-copy p { margin-left: auto; margin-right: auto; }
+      .chaos-field { inset: 6% 3%; }
+      .signal-card { width: 43vw; }
+      .chaos-core { width: 24vw; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="stage" id="stage">
+    <div class="noise" aria-hidden="true"></div>
+
+    <section class="scene landing active" id="landing" aria-label="Pembukaan LogKerja">
+      <div class="institution"><img src="assets/upm-logo.png" alt="Universiti Putra Malaysia"></div>
+      <div class="landing-main">
+        <div class="mark-shell"><img src="assets/logkerja-logo.svg" alt=""></div>
+        <p class="eyebrow">Explainer Inovasi Digital</p>
+        <h1>LogKerja</h1>
+        <p class="landing-sub">Sistem Notifikasi Tindakan Berpusat</p>
+        <button class="start-button" id="start-btn" type="button">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          Mulakan Pembentangan
+        </button>
+        <p class="audio-note">Audio akan dimainkan secara automatik</p>
+      </div>
+    </section>
+
+    <section class="scene scene-grid" id="scene-1" aria-label="Lambakan dokumen">
+      <div id="docs-container" aria-hidden="true"></div>
+      <div class="doc-hero">
+        <p class="eyebrow">Setiap hari</p>
+        <p class="doc-count" id="doc-counter">0</p>
+        <p class="doc-caption"><strong>dokumen baharu</strong> perlu dijejaki dan diambil tindakan.</p>
+      </div>
+    </section>
+
+    <section class="scene scene-grid" id="scene-2" aria-label="Keutamaan semakin kabur">
+      <div class="staff-layout">
+        <div class="staff-visual" aria-hidden="true">
+          <div class="staff-ring one"></div><div class="staff-ring two"></div>
+          <div class="task-dot a">01</div><div class="task-dot b">?</div><div class="task-dot c">09+</div><div class="task-dot d">!</div>
+          <div class="staff-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12" cy="8" r="4"/><path d="M4.5 21c.7-5 3.2-7.5 7.5-7.5s6.8 2.5 7.5 7.5"/></svg>
+          </div>
+        </div>
+        <div class="staff-copy">
+          <p class="eyebrow">Realiti kerja harian</p>
+          <h2>Tugasan bertambah.<br><span>Keutamaan semakin kabur.</span></h2>
+          <p>Tanpa satu pandangan berpusat, tindakan penting mudah tenggelam dalam rutin.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene" id="scene-3" aria-label="Maklumat berpecah merentas saluran">
+      <div class="chaos-field">
+        <div class="chaos-core"><div><b>KEUTAMAAN<br>TIDAK JELAS</b><span>Maklumat berpecah</span></div></div>
+
+        <article class="signal-card wa" id="popup-wa">
+          <div class="signal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 11.5a8 8 0 0 1-11.7 7L4 20l1.5-4.2A8 8 0 1 1 20 11.5Z"/><path d="M9 9.2c.7 2 1.8 3.2 3.9 4l1-1 2 .9-.3 1.8c-4.7 1.3-8.2-2.3-6.9-7l1.8-.3.9 2-1 1"/></svg></div>
+          <div><div class="signal-label">WhatsApp · Timb. Dekan</div><div class="signal-title">Boleh semak status dokumen ini?</div><span class="ref-chip">S26314001R9999</span></div>
+        </article>
+
+        <article class="signal-card email" id="popup-email">
+          <div class="signal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></div>
+          <div><div class="signal-label">Emel sistem · 9 baharu</div><div class="signal-title">Tindakan tertunggak</div><div class="signal-meta">Notifikasi bercampur dalam peti masuk.</div></div>
+        </article>
+
+        <article class="signal-card phone" id="popup-phone">
+          <div class="signal-icon" id="phone-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3H4.7A1.7 1.7 0 0 0 3 4.7C3 13.7 10.3 21 19.3 21a1.7 1.7 0 0 0 1.7-1.7V17l-4-1.5-1.3 2.2c-4.2-1.8-7.6-5.2-9.4-9.4L8.5 7 7 3Z"/></svg></div>
+          <div><div class="signal-label">Panggilan masuk</div><div class="signal-title">Pensyarah</div><div class="signal-meta">Status diperlukan segera.</div></div>
+        </article>
+
+        <article class="signal-card finance" id="popup-finance">
+          <div class="signal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V9m5 10V5m5 14v-7m5 7V3"/></svg></div>
+          <div><div class="signal-label">Putra Finance</div><div class="signal-title">Rekod perlu disemak manual</div><div class="signal-meta">Data ada, tetapi belum menjadi panduan tindakan.</div></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="scene scene-grid" id="scene-4" aria-label="Persoalan utama">
+      <div class="question-wrap">
+        <div class="question-rule"></div>
+        <p class="eyebrow">Persoalannya</p>
+        <h2>
+          <span class="reveal-line" id="q-line-1">Mengapa kita masih mencari status <span class="accent">secara manual…</span></span>
+          <span class="reveal-line" id="q-line-2">sedangkan rekodnya <span>sudah pun berada dalam sistem?</span></span>
+        </h2>
+      </div>
+    </section>
+
+    <section class="scene scene-grid" id="scene-5" aria-label="Sistem membimbing pegawai">
+      <div class="pivot-wrap">
+        <div class="pivot-kicker">Bagaimana jika…</div>
+        <h2><span class="reveal-line" id="pivot-copy">sistem itu sendiri</span> <span class="reveal-line" id="pivot-copy-2">memberitahu pegawai apa yang perlu dibuat?</span></h2>
+        <div class="pivot-line" id="pivot-line"></div>
+      </div>
+    </section>
+
+    <section class="scene scene-grid" id="scene-6" aria-label="Pengenalan LogKerja">
+      <div class="shockwave" id="shockwave" aria-hidden="true"></div>
+      <div class="hero-reveal" id="hero-reveal">
+        <div class="hero-mark"><img src="assets/logkerja-logo.svg" alt="Logo LogKerja"></div>
+        <h1>LogKerja</h1>
+        <p class="full-name">Sistem Notifikasi Tindakan Berpusat</p>
+        <p class="value-line">Daripada rekod kepada tindakan—secara automatik.</p>
+        <div class="team-tag">PASUKAN ZEKOP · INOVASI HKIP UPM</div>
+      </div>
+      <button class="next-button" id="next-btn" type="button" aria-label="Teruskan ke pengenalan pasukan">
+        <span>Teruskan pembentangan</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m9 5 7 7-7 7"/></svg>
+      </button>
+    </section>
+
+    <div class="module-bridge" id="module-bridge" aria-live="polite">
+      <div class="bridge-inner">
+        <div class="bridge-index">02 · PENGENALAN</div>
+        <h2>Pasukan di Sebalik LogKerja</h2>
+        <p class="bridge-team">Pasukan ZEKOP</p>
+      </div>
+    </div>
+
+    <div class="controls" id="controls" aria-label="Kawalan pembentangan">
+      <button class="control-btn" id="play-btn" type="button" title="Main / Jeda (Space)" aria-label="Main atau jeda"><svg id="play-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+      <button class="control-btn" id="restart-btn" type="button" title="Ulang semula (R)" aria-label="Ulang semula"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6"/><path d="M4 4v4.6h4.6"/></svg></button>
+      <button class="control-btn" id="fullscreen-btn" type="button" title="Skrin penuh (F)" aria-label="Skrin penuh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H3v5m13-5h5v5M8 21H3v-5m13 5h5v-5"/></svg></button>
+    </div>
+
+    <div class="progress" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="error-toast" id="error-toast" role="alert">Audio tidak dapat dimainkan. Pastikan fail <strong>assets/vo_logkerja.mp3</strong> berada bersama presentation.</div>
+    <audio id="audio" src="assets/vo_logkerja.mp3" preload="auto"></audio>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const TIMING = {
+        scene1: [0.219, 5.811],
+        scene2: [5.811, 11.580],
+        scene3: [11.580, 22.925],
+        scene4: [22.925, 31.051],
+        scene5: [31.051, 38.048],
+        scene6: [38.048, Infinity],
+        wa: 14.807,
+        email: 16.064,
+        phone: 17.141,
+        finance: 19.057
+      };
+
+      /* Set this when the main presentation is ready, e.g. "presentation.html". */
+      const NEXT_MODULE_URL = "";
+
+      const $ = (id) => document.getElementById(id);
+      const audio = $("audio");
+      const landing = $("landing");
+      const progress = $("progress-fill");
+      const errorToast = $("error-toast");
+      const scenes = [1,2,3,4,5,6].map(n => $("scene-" + n));
+      const popupMap = { wa: $("popup-wa"), email: $("popup-email"), phone: $("popup-phone"), finance: $("popup-finance") };
+
+      let started = false;
+      let rafId = 0;
+      let activeScene = 0;
+      let emittedDocs = 0;
+      let fallbackStart = 0;
+      let usingFallback = false;
+      let fallbackPausedAt = 0;
+      let duration = 41.16898;
+
+      function sceneForTime(t) {
+        if (t < TIMING.scene2[0]) return 1;
+        if (t < TIMING.scene3[0]) return 2;
+        if (t < TIMING.scene4[0]) return 3;
+        if (t < TIMING.scene5[0]) return 4;
+        if (t < TIMING.scene6[0]) return 5;
+        return 6;
+      }
+
+      function setScene(number) {
+        if (activeScene === number) return;
+        scenes.forEach((scene, i) => scene.classList.toggle("active", i === number - 1));
+        activeScene = number;
+      }
+
+      function update(t) {
+        setScene(sceneForTime(t));
+        progress.style.width = Math.min(100, (t / duration) * 100) + "%";
+
+        if (t >= TIMING.scene1[0] && t < TIMING.scene1[1]) {
+          const p = Math.max(0, Math.min(1, (t - TIMING.scene1[0]) / 4.72));
+          const count = Math.floor(p * 14);
+          $("doc-counter").textContent = count > 10 ? "10+" : count;
+          const targetDocs = Math.min(12, Math.floor(p * 13));
+          while (emittedDocs < targetDocs) createFloatingDoc(emittedDocs++);
+        }
+
+        togglePopup("wa", t >= TIMING.wa);
+        togglePopup("email", t >= TIMING.email);
+        togglePopup("phone", t >= TIMING.phone);
+        togglePopup("finance", t >= TIMING.finance);
+
+        $("q-line-1").classList.toggle("shown", t >= 23.15);
+        $("q-line-2").classList.toggle("shown", t >= 25.25);
+        $("pivot-copy").classList.toggle("shown", t >= 31.25);
+        $("pivot-copy-2").classList.toggle("shown", t >= 32.4);
+        $("pivot-line").classList.toggle("shown", t >= 33.5);
+
+        const heroOn = t >= TIMING.scene6[0];
+        $("hero-reveal").classList.toggle("shown", heroOn);
+        $("next-btn").classList.toggle("shown", t >= 40.1);
+        if (heroOn && !$("shockwave").classList.contains("run")) $("shockwave").classList.add("run");
+      }
+
+      function togglePopup(name, shown) { popupMap[name].classList.toggle("shown", shown); }
+
+      function createFloatingDoc(i) {
+        const positions = [
+          [8,78,-12],[20,18,9],[77,22,-7],[88,72,11],[31,77,-5],[66,82,8],
+          [11,41,6],[83,45,-10],[39,12,-8],[61,10,7],[45,82,4],[71,49,-6]
+        ];
+        const [x,y,r] = positions[i % positions.length];
+        const el = document.createElement("div");
+        el.className = "floating-doc";
+        el.style.left = x + "%";
+        el.style.top = y + "%";
+        el.style.transform = `translate(-50%,35px) rotate(${r - 7}deg) scale(.88)`;
+        $("docs-container").appendChild(el);
+        requestAnimationFrame(() => {
+          el.style.opacity = ".72";
+          el.style.transform = `translate(-50%,-20px) rotate(${r}deg) scale(1)`;
+        });
+      }
+
+      function currentTime() {
+        if (!usingFallback) return audio.currentTime || 0;
+        if (fallbackPausedAt) return fallbackPausedAt;
+        return Math.max(0, (performance.now() - fallbackStart) / 1000);
+      }
+
+      function loop() {
+        if (!started) return;
+        update(currentTime());
+        if ((!usingFallback && !audio.paused) || (usingFallback && !fallbackPausedAt)) rafId = requestAnimationFrame(loop);
+      }
+
+      async function start() {
+        if (started) return;
+        started = true;
+        landing.classList.add("hidden");
+        try {
+          await audio.play();
+          usingFallback = false;
+        } catch (error) {
+          usingFallback = true;
+          fallbackStart = performance.now();
+          errorToast.classList.add("shown");
+        }
+        cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(loop);
+        updatePlayIcon();
+      }
+
+      function togglePlay() {
+        if (!started) return start();
+        if (usingFallback) {
+          if (fallbackPausedAt) {
+            fallbackStart = performance.now() - fallbackPausedAt * 1000;
+            fallbackPausedAt = 0;
+            rafId = requestAnimationFrame(loop);
+          } else {
+            fallbackPausedAt = currentTime();
+            cancelAnimationFrame(rafId);
+          }
+        } else if (audio.paused) {
+          audio.play();
+          rafId = requestAnimationFrame(loop);
+        } else {
+          audio.pause();
+          cancelAnimationFrame(rafId);
+        }
+        updatePlayIcon();
+      }
+
+      function updatePlayIcon() {
+        const paused = usingFallback ? Boolean(fallbackPausedAt) : audio.paused;
+        $("play-icon").innerHTML = paused
+          ? '<path d="M8 5v14l11-7z"/>'
+          : '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>';
+      }
+
+      function resetVisualState() {
+        activeScene = 0;
+        emittedDocs = 0;
+        $("docs-container").innerHTML = "";
+        $("doc-counter").textContent = "0";
+        Object.values(popupMap).forEach(el => el.classList.remove("shown"));
+        ["q-line-1","q-line-2","pivot-copy","pivot-copy-2","pivot-line","hero-reveal","next-btn"].forEach(id => $(id).classList.remove("shown"));
+        $("shockwave").classList.remove("run");
+        $("module-bridge").classList.remove("shown");
+        progress.style.width = "0";
+      }
+
+      async function restart() {
+        cancelAnimationFrame(rafId);
+        resetVisualState();
+        started = true;
+        landing.classList.add("hidden");
+        errorToast.classList.remove("shown");
+        fallbackPausedAt = 0;
+        if (usingFallback) {
+          fallbackStart = performance.now();
+        } else {
+          audio.currentTime = 0;
+          try { await audio.play(); } catch (_) {
+            usingFallback = true;
+            fallbackStart = performance.now();
+            errorToast.classList.add("shown");
+          }
+        }
+        rafId = requestAnimationFrame(loop);
+        updatePlayIcon();
+      }
+
+      function seek(delta) {
+        if (!started) return;
+        const next = Math.max(0, Math.min(duration, currentTime() + delta));
+        resetVisualState();
+        if (usingFallback) {
+          fallbackStart = performance.now() - next * 1000;
+          fallbackPausedAt = 0;
+        } else audio.currentTime = next;
+        update(next);
+      }
+
+      function toggleFullscreen() {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+        else document.exitFullscreen?.();
+      }
+
+      function continuePresentation() {
+        const detail = { from: "logkerja-intro", nextSection: "team-introduction" };
+        window.dispatchEvent(new CustomEvent("logkerja:intro-complete", { detail }));
+        if (typeof window.startMainPresentation === "function") return window.startMainPresentation(detail);
+        if (NEXT_MODULE_URL) return window.location.assign(NEXT_MODULE_URL);
+        $("module-bridge").classList.add("shown");
+      }
+
+      $("start-btn").addEventListener("click", start);
+      $("play-btn").addEventListener("click", togglePlay);
+      $("restart-btn").addEventListener("click", restart);
+      $("fullscreen-btn").addEventListener("click", toggleFullscreen);
+      $("next-btn").addEventListener("click", continuePresentation);
+
+      audio.addEventListener("loadedmetadata", () => { if (Number.isFinite(audio.duration)) duration = audio.duration; });
+      audio.addEventListener("ended", () => { update(duration); updatePlayIcon(); });
+      audio.addEventListener("error", () => errorToast.classList.add("shown"));
+
+      document.addEventListener("keydown", (event) => {
+        if (event.target.matches("button") && (event.code === "Space" || event.code === "Enter")) return;
+        if (event.code === "Space") { event.preventDefault(); togglePlay(); }
+        else if (event.key.toLowerCase() === "r") restart();
+        else if (event.key.toLowerCase() === "f") toggleFullscreen();
+        else if (event.key === "ArrowRight") seek(5);
+        else if (event.key === "ArrowLeft") seek(-5);
+      });
+
+      updatePlayIcon();
+    })();
+  </script>
+  <script>
+    window.startMainPresentation = function () {
+      const frame = document.createElement("iframe");
+      frame.src = "main.html";
+      frame.title = "Pembentangan utama LogKerja";
+      frame.style.cssText = "position:fixed;inset:0;width:100%;height:100%;border:0;background:#07111f;z-index:9999;opacity:0;transition:opacity .45s ease";
+      frame.addEventListener("load", () => requestAnimationFrame(() => { frame.style.opacity = "1"; }));
+      document.body.appendChild(frame);
+    };
+  </script>
+</body>
+</html>
