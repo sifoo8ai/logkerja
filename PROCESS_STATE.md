@@ -20,10 +20,17 @@ _Kemas kini terakhir: 2026-08-01 — sesi pengasasan dokumentasi._
 - Tiada kerja tertunggak aktif. **T7.2 (polish modal) telah digugurkan** oleh pemilik (2026-08-01).
 - Feature baharu akan di-brainstorm kemudian (lihat "Idea feature baru" di bawah).
 
-## ⚠️ Isu deployment Vercel (PENTING sebelum push)
+## ✅ Isu deployment Vercel (SELESAI 2026-08-01)
+
+**Status:** SELESAI. Push commit `a3d5f0c` (2026-08-01) berjaya deploy di Vercel oleh akaun
+`sifoo8ai` — mengesahkan fix disconnect+reconnect Git-integration berkesan. Deployment kini pulih
+selepas ~138 hari "Stale". Bahagian di bawah dikekalkan sebagai rujukan/pencegahan.
+
+---
 
 Vercel guna **Hobby plan** — hanya pemilik dibenarkan mencetus deployment. Selepas commit `31ca0db`
-(Mar 16, deployment terakhir yang berjaya), semua commit berikutnya **tidak deploy** (status "Stale").
+(Mar 16, deployment terakhir yang berjaya sebelum ini), semua commit berikutnya **tidak deploy**
+(status "Stale") sehingga dipulihkan pada 2026-08-01.
 
 **Diagnosis (disemak 2026-08-01 dari git history):** email author commit ialah `sifoo8.ai@gmail.com`
 pada **kesemua** commit — termasuk yang berjaya deploy dan yang tidak. Jadi puncanya **bukan** email
@@ -79,8 +86,9 @@ Catat keputusan seni bina/proses penting di sini (tarikh — keputusan — sebab
   fail ini) tanpa mengubah kod. Sebab: repo tiada knowledge base untuk sambung development dengan
   selamat pada sistem yang guna aktif.
 - **2026-08-01** — Gugurkan T7.2 (polish modal) dari kerja tertunggak. Feature baharu di-brainstorm kemudian.
-- **2026-08-01** — Rakam kekangan deployment Vercel Hobby (commit author mesti `sifoo8ai` /
-  `sifoo8.ai@gmail.com`); git di Vercel telah disconnect+reconnect. Lihat bahagian isu deployment di atas.
+- **2026-08-01** — Rakam kekangan deployment Vercel Hobby; git di Vercel telah disconnect+reconnect.
+- **2026-08-01** — Isu deployment Vercel **SELESAI**: push `a3d5f0c` berjaya deploy oleh akaun
+  `sifoo8ai`. Punca sebenar = akaun GitHub push / sambungan Git-integration (bukan email author).
 - **(sejarah)** — Auth guna popup + `postMessage` dan `getSession` (bukan `getUser`) sengaja, untuk
   atasi 403 iframe/partition side panel Chrome. Jangan ubah tanpa uji dalam extension.
 - **(sejarah)** — Semua tulisan status dokumen melalui RPC SECURITY DEFINER (`transition_document`),
