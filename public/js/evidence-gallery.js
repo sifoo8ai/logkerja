@@ -18,6 +18,9 @@
     "impact-time": [
       { src: "assets/evidence_gallery/evidence-impacttime-before01.png", alt: "Paparan sebelum LogKerja.", caption: "Sebelum LogKerja." },
       { src: "assets/evidence_gallery/evidence-after01.png", alt: "Paparan selepas LogKerja.", caption: "Selepas LogKerja." }
+    ],
+    "impact-process": [
+      { src: "assets/evidence_gallery/evidence-impacttime-after01.png", alt: "Paparan tindakan LogKerja yang boleh disaring dan dijejak.", caption: "Tindakan yang boleh disaring dan dijejak." }
     ]
   };
 

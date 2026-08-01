@@ -457,9 +457,13 @@
       transition: opacity .7s, transform .7s var(--ease), background .25s;
     }
     .next-button.shown { opacity: 1; transform: translate(-50%,0); }
-    .next-button:hover { background: rgba(55,76,159,.34); }
+    .next-button.shown { animation: next-button-glow 3.1s ease-in-out infinite; }
     .next-button span { font-size: clamp(11px,.9vw,16px); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
     .next-button svg { width: 20px; }
+    @keyframes next-button-glow {
+      0%,100% { border-color: rgba(103,219,231,.38); background: rgba(6,16,33,.5); box-shadow: 0 0 0 0 rgba(103,219,231,0),0 0 15px rgba(53,216,232,.06); }
+      50% { border-color: rgba(103,219,231,.76); background: rgba(12,38,61,.62); box-shadow: 0 0 0 7px rgba(103,219,231,.065),0 0 28px rgba(53,216,232,.18); }
+    }
 
     .shockwave {
       position: absolute; left: 50%; top: 50%; width: 8vw; aspect-ratio: 1; border: 1px solid rgba(103,219,231,.75); border-radius: 50%;
