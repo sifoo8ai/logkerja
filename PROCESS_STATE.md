@@ -18,12 +18,11 @@ _Kemas kini terakhir: 2026-11-05 — ERP-CAPTURE-01 (kod siap, menunggu deploy).
 ## Kerja tertunggak
 
 ### ERP-CAPTURE-01 — langkah deploy (ikut urutan, elak pecah production)
-- [ ] 1. Jalankan migration `supabase/migrations/20261105120000_check_reference_exists.sql`
-  (SQL Editor Supabase atau `supabase db push`). Ia tambahan sahaja.
-- [ ] 2. Deploy `documents_create` (`supabase functions deploy documents_create --no-verify-jwt`).
-  Bentuk `{ error }` dikekalkan, jadi klien lama tetap berfungsi.
-- [ ] 3. Push PWA → Vercel. Modal manual masih berfungsi walaupun langkah 1 belum siap (semakan
-  awal gagal dengan selamat dan pelayan masih menolak duplikasi).
+- [x] 1. Migration `20261105120000_check_reference_exists.sql` dijalankan di production
+  (2026-11-05, `npx supabase db push --remote`). Disahkan: anon ditolak (`42501`).
+- [x] 2. `documents_create` dideploy (2026-11-05, `--no-verify-jwt`). Disahkan: 401 kini
+  `{ error, code: 'INVALID_JWT' }` tanpa objek debug.
+- [x] 3. PWA dipush → Vercel (commit `91f8f6f`, 2026-11-05).
 - [ ] 4. Reload extension (unpacked, v1.1.0) selepas PWA live. Iframe side panel guna URL production.
 - [ ] 5. UAT pada ERP sebenar: buka Requisition yang SUDAH di-approve → kad auto → "Sudah wujud".
   Kemudian uji approval sebenar seterusnya.

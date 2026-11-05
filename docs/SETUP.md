@@ -42,6 +42,22 @@ Tiada test automatik buat masa ini; pengesahan manual ikut [../QA_CHECKLIST.md](
 
 ## 3. Supabase
 
+### Supabase CLI (v3)
+
+CLI dipasang sebagai devDependency (`npx supabase ...`). Login sekali dengan `npx supabase login`.
+
+> ⚠️ **CLI v3 sasarkan stack LOKAL secara lalai.** Sentiasa tambah `--remote` (atau
+> `--remote=csimvhrkwpoeyncqxvus`) untuk production, dan buat `--dry-run` dahulu:
+>
+> ```bash
+> npx supabase migration list --remote          # pastikan hanya migration baharu yang belum ada di remote
+> npx supabase db push --remote --dry-run       # semak apa yang akan dijalankan
+> npx supabase db push --remote --yes
+> npx supabase functions deploy <nama> --no-verify-jwt --remote=csimvhrkwpoeyncqxvus --yes
+> ```
+>
+> Tanpa `--yes`, prompt deploy berpilihan lalai **No**.
+
 ### Migration
 - Fail SQL dalam `supabase/migrations/` (bernama `<timestamp>_<deskripsi>.sql`).
 - **Tambah migration baharu** untuk sebarang perubahan skema — jangan edit fail lama.
