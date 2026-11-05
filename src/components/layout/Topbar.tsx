@@ -1,43 +1,23 @@
 import React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { signOut, getActiveRole } from '../../lib/auth';
-import BrandLogo from './BrandLogo';
+import { useLocation } from 'react-router-dom';
+import { getActiveRole } from '../../lib/auth';
+import { getPageTitle } from './navItems';
+import UserMenu from './UserMenu';
 
 const Topbar: React.FC = () => {
-    const navigate = useNavigate();
-    const activeRole = getActiveRole();
-
-    const handleLogout = async () => {
-        await signOut();
-        navigate('/login');
-    };
+    const location = useLocation();
+    const pageTitle = getPageTitle(location.pathname, getActiveRole());
 
     return (
         <header className="bg-white shadow relative z-10">
-            <div className="flex justify-between items-center px-6 py-4">
-                <div className="flex items-center space-x-4">
-                    <span className="flex items-center gap-2.5">
-                        <BrandLogo className="w-8 h-8" />
-                        <span className="text-gray-800 font-semibold text-lg">LogKerja</span>
-                    </span>
-                    {activeRole && (
-                        <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full uppercase tracking-wide font-medium">
-                            {activeRole}
-                        </span>
-                    )}
+            <div className="flex justify-between items-center px-6 py-3">
+                <div className="flex items-baseline gap-2 min-w-0">
+                    <h1 className="text-lg font-bold text-blue-600 whitespace-nowrap">{pageTitle}</h1>
+                    <span className="text-gray-300" aria-hidden="true">|</span>
+                    <span className="text-sm text-gray-600 truncate">Sistem Notifikasi Tindakan Berpusat</span>
                 </div>
 
-                <div className="flex items-center space-x-4">
-                    <Link to="/app/profile" className="text-gray-600 hover:text-gray-900 text-sm font-medium">
-                        Profile
-                    </Link>
-                    <button
-                        onClick={handleLogout}
-                        className="text-gray-600 hover:text-red-600 text-sm font-medium"
-                    >
-                        Logout
-                    </button>
-                </div>
+                <UserMenu />
             </div>
         </header>
     );

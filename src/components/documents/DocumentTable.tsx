@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface DocumentRow {
@@ -32,12 +32,24 @@ const PAGE_SIZE = 10;
 export const DocumentTable: React.FC<DocumentTableProps> = ({ documents, onRowClick }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
+    const [categoryFilter, setCategoryFilter] = useState('');
     const [page, setPage] = useState(1);
+
+    // Senarai kategori unik daripada dokumen sedia ada (tiada query tambahan)
+    const categories = useMemo(() => {
+        const map = new Map<string, string>();
+        documents.forEach(doc => {
+            if (doc.category) map.set(doc.category.id, doc.category.name);
+        });
+        return Array.from(map, ([id, name]) => ({ id, name }))
+            .sort((a, b) => a.name.localeCompare(b.name));
+    }, [documents]);
 
     const filtered = documents.filter(doc => {
         const matchesSearch = doc.reference_no.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter ? doc.current_status === statusFilter : true;
-        return matchesSearch && matchesStatus;
+        const matchesCategory = categoryFilter ? doc.category?.id === categoryFilter : true;
+        return matchesSearch && matchesStatus && matchesCategory;
     });
 
     const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
@@ -56,7 +68,17 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({ documents, onRowCl
                         className="w-full pl-9 pr-4 py-2 text-sm border border-slate-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                     />
                 </div>
-                <div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                    <select
+                        value={categoryFilter}
+                        onChange={(e) => { setCategoryFilter(e.target.value); setPage(1); }}
+                        className="w-full md:w-auto text-sm border border-slate-300 rounded-md px-3 py-2"
+                    >
+                        <option value="">Semua Kategori</option>
+                        {categories.map(c => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                    </select>
                     <select
                         value={statusFilter}
                         onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}

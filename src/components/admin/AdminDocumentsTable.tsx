@@ -41,6 +41,16 @@ export const AdminDocumentsTable: React.FC<AdminDocumentsTableProps> = ({
                     />
                 </div>
                 <div className="flex gap-2">
+                    <select
+                        value={categoryFilter}
+                        onChange={(e) => { setCategoryFilter(e.target.value); setPage(1); }}
+                        className="px-3 py-2 text-sm border border-slate-300 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white"
+                    >
+                        <option value="">Semua Kategori</option>
+                        {categories.map((c: any) => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                    </select>
                     <div className="relative">
                         <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                         <select
@@ -56,16 +66,6 @@ export const AdminDocumentsTable: React.FC<AdminDocumentsTableProps> = ({
                             <option value="ON_HOLD">Ditahan (Hold)</option>
                         </select>
                     </div>
-                    <select
-                        value={categoryFilter}
-                        onChange={(e) => { setCategoryFilter(e.target.value); setPage(1); }}
-                        className="px-3 py-2 text-sm border border-slate-300 rounded-md focus:ring-blue-500 focus:border-blue-500 bg-white"
-                    >
-                        <option value="">Semua Kategori</option>
-                        {categories.map((c: any) => (
-                            <option key={c.id} value={c.id}>{c.name}</option>
-                        ))}
-                    </select>
                 </div>
             </div>
 

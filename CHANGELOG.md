@@ -9,6 +9,17 @@ dirumus daripada mesej git commit dan `CONTEXT.md`.
 
 ## [Belum dikeluarkan]
 
+### UI-SHELL-01 — Topbar, menu role, sidebar & filter Kategori (Nov 2026)
+- Topbar desktop (semua role) papar nama page tebal biru + "Sistem Notifikasi Tindakan Berpusat",
+  menggantikan logo dan chip role. Pautan Profile dibuang (masih ada di sidebar).
+- Butang Logout diganti `UserMenu`: avatar bulat + nama role + ▾. Dropdown papar nama/emel, senarai
+  role user untuk **tukar role tanpa logout** (`setActiveRole` + navigate), dan Log keluar.
+- Sidebar tertutup hanya papar logo (klik untuk buka) dan ikon menu, berpusat dalam satu lajur.
+  Butang menu kini 30px tinggi. Nama menu dikongsi melalui `navItems.ts`.
+- Filter **Kategori** ditambah di kiri "Semua Status" pada jadual dokumen Penyemak. Dalam jadual
+  Admin, filter Kategori dialih ke kiri.
+- Tiada perubahan backend/auth; `MobileShell` (side panel) tidak berubah.
+
 ### BRAND-01 — Logo & ikon rasmi LogKerja (Nov 2026)
 - Logo rasmi (`public/icon.svg`) menggantikan ikon placeholder untuk favicon, PWA dan push notification.
 - Ikon PNG dijana dari logo: `public/icons/icon-192.png`, `icon-512.png`, `icon-maskable-512.png`

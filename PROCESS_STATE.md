@@ -33,6 +33,13 @@ _Kemas kini terakhir: 2026-11-05 — ERP-CAPTURE-01 (kod siap, menunggu deploy).
 - [ ] Pertimbang guna reka bentuk sama untuk modal Pengesah/Pelulus/Admin. `documentDetailsFormat.ts`
   boleh diguna semula. Pemilik pilih Penyemak sahaja buat masa ini.
 
+### UI-SHELL-01 (2026-11-05)
+- [x] Topbar: tajuk page + "Sistem Notifikasi Tindakan Berpusat"; menu avatar dengan tukar role
+  tanpa logout. Sidebar tertutup hanya papar ikon (berpusat), butang menu 30px. Filter Kategori
+  ditambah pada jadual Penyemak dan Admin. Disemak dengan harness; `npm run build` lulus.
+- [ ] Uji tukar role dengan akaun yang ada lebih dari satu role (perlu login sebenar).
+- [ ] Pertimbang tukar role dalam side panel/mobile (`MobileShell` tiada topbar).
+
 ### Perlu disahkan pada ERP sebenar
 - Selector `edReqNbr_text` / `edEmployeeID_text` diambil dari bookmarklet (terbukti berfungsi).
 - Pengesanan grid APPROVALS (header "Approved By" + "Status") belum diuji pada DOM ERP sebenar.
