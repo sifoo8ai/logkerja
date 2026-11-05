@@ -1,4 +1,5 @@
 import { supabase } from '../../lib/supabaseClient';
+import { assertEdgeOk } from '../../lib/edgeError';
 
 export async function uploadDocumentAttachment(documentId: string, file: File) {
     // 1. Get initial upload metadata
@@ -6,8 +7,9 @@ export async function uploadDocumentAttachment(documentId: string, file: File) {
         body: { document_id: documentId, filename: file.name },
     });
 
-    if (initError || !initData?.filePath) {
-        throw new Error(initError?.message || 'Failed to initialize upload');
+    await assertEdgeOk(initError, initData, 'Gagal memulakan muat naik lampiran.');
+    if (!initData?.filePath) {
+        throw new Error('Gagal memulakan muat naik lampiran.');
     }
 
     const { filePath } = initData;
@@ -22,7 +24,7 @@ export async function uploadDocumentAttachment(documentId: string, file: File) {
     }
 
     // 3. Register metadata in the database via Edge Function
-    const { error: registerError } = await supabase.functions.invoke('attachments_register', {
+    const { data: registerData, error: registerError } = await supabase.functions.invoke('attachments_register', {
         body: {
             document_id: documentId,
             file_path: filePath,
@@ -32,9 +34,7 @@ export async function uploadDocumentAttachment(documentId: string, file: File) {
         },
     });
 
-    if (registerError) {
-        throw new Error(registerError.message || 'Failed to register attachment metadata');
-    }
+    await assertEdgeOk(registerError, registerData, 'Gagal mendaftar maklumat lampiran.');
 
     return true;
 }
@@ -44,8 +44,9 @@ export async function getSignedViewUrl(attachmentId: string): Promise<string> {
         body: { attachment_id: attachmentId },
     });
 
-    if (error || !data?.signedUrl) {
-        throw new Error(error?.message || 'Failed to get signed URL');
+    await assertEdgeOk(error, data, 'Gagal mendapatkan pautan lampiran.');
+    if (!data?.signedUrl) {
+        throw new Error('Gagal mendapatkan pautan lampiran.');
     }
 
     return data.signedUrl;

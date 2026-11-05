@@ -9,12 +9,35 @@ dirumus daripada mesej git commit dan `CONTEXT.md`.
 
 ## [Belum dikeluarkan]
 
-### Ditambah
+### ERP-CAPTURE-01 — Tangkapan Requisition ERP UPM → LogKerja (Nov 2026)
+
+#### Ditambah
+- **Extension v1.1.0**: content script `extension/erp-capture.js` untuk `erp.upm.edu.my`. Ia kesan
+  approval pengguna (baris pertama "Approved By" + Status Approved di tab APPROVALS) dan papar kad
+  "Daftar ke LogKerja" dengan Ref. Nbr. + Creator. Butang manual "LogKerja" sentiasa ada sebagai
+  sandaran. Script ini baca sahaja dan tidak klik atau ubah apa-apa dalam ERP.
+- Relay `service_worker.js` ↔ `sidepanel.js` ↔ PWA (`LOGKERJA_READY` / `LOGKERJA_ERP_CAPTURE` /
+  `LOGKERJA_ERP_RESULT`). Side panel dibuka automatik bila butang diklik.
+- Halaman tetapan extension (`options.html`) untuk tukar nama approver.
+- PWA `ErpCaptureHost`: terima tangkapan (iframe + `chrome-extension://` origin sahaja) dan buka
+  modal pra-isi (Keterangan = nama Creator).
+- RPC baharu `check_reference_exists` (SECURITY DEFINER, maklumat minimum) — migration
+  `20261105120000_check_reference_exists.sql`.
+- Mod compact/side panel untuk **PENYEMAK**: `/app/penyemak/{home,dokumen,profile}` + BottomNav.
+
+#### Diubah
+- Modal Daftar Dokumen: semak nombor rujukan semasa menaip, papar keputusan ikut state machine
+  (daftar baharu / **Hantar Semula** dokumen sendiri yang REJECTED/ON_HOLD / info disekat), ralat jelas.
+  Jika lampiran gagal selepas dokumen dicipta, modal tak lagi biarkan pengguna klik hantar semula.
+- `documents_create`: duplikasi → **409** `{ code: 'DUPLICATE_REF' }`; buang data debug daripada respons 401.
+
+#### Dibaiki
+- Ralat generik "Edge Function returned a non-2xx status code" — klien kini baca mesej sebenar
+  daripada respons (`src/lib/edgeError.ts`) dalam `penyemakApi` dan `attachmentsApi`.
+
+### Dokumentasi (Ogos 2026)
 - Set dokumentasi & memori projek: `README.md`, `AGENTS.md`, `CLAUDE.md`, `CHANGELOG.md`,
   `PROCESS_STATE.md`, dan `docs/` (ARCHITECTURE, DATA_MODEL, SETUP). Tiada perubahan kod aplikasi.
-
-### Dalam perancangan
-- **T7.2** — polish modal + badge + penambahbaikan UX (dari `CONTEXT.md`). Lihat [PROCESS_STATE.md](PROCESS_STATE.md).
 
 ---
 

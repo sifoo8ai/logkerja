@@ -136,10 +136,12 @@ Metadata fail; fail sebenar dalam Storage bucket privat `document-attachments`.
 | `has_role` | `(check_role app_role) → boolean` | Semak sama ada `auth.uid()` ada peranan |
 | `is_active_user` | `() → boolean` | Semak `profiles.is_active` untuk `auth.uid()` |
 | `get_routing_for_category` | `(cat_id uuid) → record` | Pulang verifier/approver lalai kategori |
+| `check_reference_exists` | `(p_ref_no text) → table(ref_exists, is_own, doc_id, current_status, pending_actor_name, updated_at)` | Semak kewujudan nombor rujukan **merentasi semua pengguna** (RLS biasa sembunyikan dokumen orang lain). Padanan `upper(trim())`. `doc_id` + `pending_actor_name` hanya diisi untuk dokumen milik sendiri. Hanya `authenticated` + pengguna aktif. Klien panggil terus melalui `supabase.rpc()` |
 | `set_updated_at` | trigger | Kemas `updated_at` pada UPDATE |
 
-Klien memanggil RPC ini secara **tidak langsung** melalui Edge Functions (`documents_create`,
-`documents_transition`), bukan `.rpc()` terus dari frontend.
+Klien memanggil RPC tulis (`create_document`, `transition_document`) secara **tidak langsung**
+melalui Edge Functions (`documents_create`, `documents_transition`), bukan `.rpc()` terus dari
+frontend. Pengecualian: `check_reference_exists` (baca sahaja) dipanggil terus.
 
 ## Corak RLS (ringkasan)
 
@@ -157,4 +159,5 @@ Semua dalam `supabase/migrations/`:
 `logkerja_v2_schema` → `enable_realtime` → `logkerja_v2_rls_policies` → `profiles_select_minimal` →
 `add_profiles_email` → `logkerja_v2_storage` → `grant_update_email` → `logkerja_admin_update` →
 `logkerja_v2_optimistic_locking_and_indexes` → `fix_category_routing_grants` → `fix_user_roles_grants` →
-`fix_document_categories_grants` → `fix_category_routing_grants2` → `fix_admin_delete_documents`.
+`fix_document_categories_grants` → `fix_category_routing_grants2` → `fix_admin_delete_documents` →
+`check_reference_exists` (Nov 2026).

@@ -1,16 +1,22 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, CheckSquare, Clock, User } from 'lucide-react';
+import { Home, CheckSquare, Clock, User, FileText } from 'lucide-react';
 
 export const BottomNav: React.FC<{ role: string }> = ({ role }) => {
     const basePath = `/app/${role.toLowerCase()}`;
 
-    const tabs = [
-        { name: 'Home', path: `${basePath}/home`, icon: Home },
-        { name: 'Tindakan', path: `${basePath}/tindakan`, icon: CheckSquare },
-        { name: 'History', path: `${basePath}/history`, icon: Clock },
-        { name: 'Profile', path: `${basePath}/profile`, icon: User },
-    ];
+    const tabs = role.toUpperCase() === 'PENYEMAK'
+        ? [
+            { name: 'Home', path: `${basePath}/home`, icon: Home },
+            { name: 'Dokumen', path: `${basePath}/dokumen`, icon: FileText },
+            { name: 'Profile', path: `${basePath}/profile`, icon: User },
+        ]
+        : [
+            { name: 'Home', path: `${basePath}/home`, icon: Home },
+            { name: 'Tindakan', path: `${basePath}/tindakan`, icon: CheckSquare },
+            { name: 'History', path: `${basePath}/history`, icon: Clock },
+            { name: 'Profile', path: `${basePath}/profile`, icon: User },
+        ];
 
     return (
         <nav className="flex items-center justify-around bg-white border-t border-gray-200 shrink-0 pb-safe pb-4 pt-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-20">

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, RefreshCw } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
-import { fetchPenyemakKPIs, DocumentRow } from '../../features/documents/penyemakApi';
+import { fetchPenyemakKPIs, fetchPenyemakDocuments, DocumentRow } from '../../features/documents/penyemakApi';
 import { KpiCards } from '../../components/dashboard/KpiCards';
 import { DocumentTable } from '../../components/documents/DocumentTable';
 import { SubmissionModal } from '../../components/documents/SubmissionModal';
@@ -19,17 +19,13 @@ const PenyemakDashboard: React.FC = () => {
 
     const loadData = async (uid: string) => {
         try {
-            const [kpiData, { data: docs }] = await Promise.all([
+            const [kpiData, docs] = await Promise.all([
                 fetchPenyemakKPIs(uid),
-                supabase
-                    .from('documents')
-                    .select('id, reference_no, current_status, created_at, updated_at, description, verifier_id, approver_id, category:document_categories(id, name), verifier:profiles!documents_verifier_id_fkey(full_name), approver:profiles!documents_approver_id_fkey(full_name)')
-                    .eq('creator_id', uid)
-                    .order('updated_at', { ascending: false })
+                fetchPenyemakDocuments(uid),
             ]);
 
             setKpis(kpiData);
-            setDocuments((docs as any) || []);
+            setDocuments(docs);
         } catch (error) {
             console.error('Error loading dashboard data:', error);
         } finally {

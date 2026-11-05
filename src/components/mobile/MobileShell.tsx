@@ -13,6 +13,10 @@ export const MobileShell: React.FC<{ role: string }> = ({ role }) => {
     useEffect(() => {
         if (!user) return;
 
+        // Badge "pending" hanya relevan untuk PENGESAH/PELULUS
+        const roleKey = role.toLowerCase();
+        if (roleKey !== 'pengesah' && roleKey !== 'pelulus') return;
+
         // Function to update badge
         const updateBadge = async () => {
             try {

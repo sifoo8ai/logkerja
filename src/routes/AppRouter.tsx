@@ -19,6 +19,8 @@ import PengesahHistoryMobile from '../pages/mobile/pengesah/PengesahHistoryMobil
 import PelulusHomeMobile from '../pages/mobile/pelulus/PelulusHomeMobile';
 import PelulusTindakanMobile from '../pages/mobile/pelulus/PelulusTindakanMobile';
 import PelulusHistoryMobile from '../pages/mobile/pelulus/PelulusHistoryMobile';
+import PenyemakHomeMobile from '../pages/mobile/penyemak/PenyemakHomeMobile';
+import PenyemakDokumenMobile from '../pages/mobile/penyemak/PenyemakDokumenMobile';
 
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
@@ -26,6 +28,11 @@ import { supabase } from '../lib/supabaseClient';
 const PengesahIndex = () => {
     const isCompact = useMediaQuery('(max-width: 768px)');
     return isCompact ? <Navigate to="home" replace /> : <PengesahDashboard />;
+};
+
+const PenyemakIndex = () => {
+    const isCompact = useMediaQuery('(max-width: 768px)');
+    return isCompact ? <Navigate to="home" replace /> : <PenyemakDashboard />;
 };
 
 const PelulusIndex = () => {
@@ -79,7 +86,12 @@ export const AppRouter = () => {
                 <Route path="profile" element={<Profile />} />
 
                 <Route path="admin" element={<AdminDashboard />} />
-                <Route path="penyemak" element={<PenyemakDashboard />} />
+                <Route path="penyemak">
+                    <Route index element={<PenyemakIndex />} />
+                    <Route path="home" element={<PenyemakHomeMobile />} />
+                    <Route path="dokumen" element={<PenyemakDokumenMobile />} />
+                    <Route path="profile" element={<Profile />} />
+                </Route>
 
                 <Route path="pengesah">
                     <Route index element={<PengesahIndex />} />

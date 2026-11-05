@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Tetapan LogKerja</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 16px; min-width: 360px; color: #0f172a; }
+        h1 { font-size: 16px; margin: 0 0 12px; color: #1e3a8a; }
+        label { display: block; font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 4px; }
+        input { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; }
+        p.help { font-size: 12px; color: #64748b; margin: 6px 0 12px; }
+        button { padding: 8px 14px; border: none; border-radius: 6px; background: #2563eb; color: #fff; font-weight: 600; cursor: pointer; }
+        #saved { margin-left: 8px; font-size: 12px; color: #047857; }
+    </style>
+</head>
+
+<body>
+    <h1>Tangkapan ERP UPM</h1>
+    <label for="approverName">Nama approver (seperti dalam kolum "Approved By")</label>
+    <input id="approverName" type="text" autocomplete="off">
+    <p class="help">Kad "Daftar ke LogKerja" muncul automatik bila nama ini berada di baris pertama tab APPROVALS dengan status Approved.</p>
+    <button id="save">Simpan</button><span id="saved" hidden>Disimpan</span>
+    <script src="options.js"></script>
+</body>
+
+</html>

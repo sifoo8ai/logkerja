@@ -41,14 +41,8 @@ Deno.serve(async (req) => {
         } = await supabaseUser.auth.getUser(token);
 
         if (error || !user) {
-            const debugPayload = {
-                hasSupabaseUrl: !!Deno.env.get("SUPABASE_URL"),
-                hasAnonKey: !!Deno.env.get("SUPABASE_ANON_KEY"),
-                authHeaderPresent: !!authHeader,
-                tokenPrefix: token ? token.substring(0, 10) : "",
-                projectUrl: Deno.env.get("SUPABASE_URL") || "",
-            };
-            return new Response(JSON.stringify({ code: 401, message: "Invalid JWT edge", error: "Invalid JWT", debug: debugPayload, details: error }), {
+            console.error("[documents_create] Invalid JWT:", error?.message);
+            return new Response(JSON.stringify({ error: "Sesi tamat atau tidak sah. Sila log masuk semula.", code: "INVALID_JWT" }), {
                 status: 401,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             });
@@ -59,10 +53,16 @@ Deno.serve(async (req) => {
             Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
         );
 
-        const { ref_no, cat_id, desc } = await req.json();
+        const body = await req.json();
+        const ref_no = typeof body?.ref_no === 'string' ? body.ref_no.trim() : '';
+        const cat_id = body?.cat_id;
+        const desc = body?.desc;
 
         if (!ref_no || !cat_id) {
-            throw new Error('Missing required arguments untuk create_document');
+            return new Response(JSON.stringify({ error: 'Sila isikan No Rujukan dan pilih Kategori.', code: 'MISSING_FIELDS' }), {
+                status: 400,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
         }
 
         const { data: docId, error: dbError } = await supabaseUser.rpc('create_document', {
@@ -71,7 +71,19 @@ Deno.serve(async (req) => {
             p_desc: desc || ''
         });
 
-        if (dbError) throw dbError;
+        if (dbError) {
+            // 23505 = unique_violation pada documents.reference_no
+            if (dbError.code === '23505') {
+                return new Response(JSON.stringify({ error: `Nombor rujukan ${ref_no} sudah wujud dalam LogKerja.`, code: 'DUPLICATE_REF' }), {
+                    status: 409,
+                    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                });
+            }
+            return new Response(JSON.stringify({ error: dbError.message || 'Gagal mendaftar dokumen.', code: 'RPC_ERROR' }), {
+                status: 400,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+        }
 
         const { data: routeData } = await supabaseAdmin.from('category_routing').select('default_verifier_id').eq('category_id', cat_id).single();
 
@@ -113,7 +125,8 @@ Deno.serve(async (req) => {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
     } catch (err: any) {
-        return new Response(JSON.stringify({ error: err.message }), {
+        console.error("[documents_create] Unexpected error:", err);
+        return new Response(JSON.stringify({ error: err.message || 'Ralat tidak dijangka.', code: 'UNEXPECTED' }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });

@@ -116,6 +116,35 @@ penapis lajur betul — `verifier_id=eq.<user>` / `approver_id=eq.<user>` — un
 Folder `extension/` — MV3 side panel yang membungkus PWA. Ada `service_worker.js`, `sidepanel.js`
 (kaunter badge realtime), `manifest.json`, ikon. Lihat [extension/README.md](../extension/README.md).
 
+Dalam side panel (lebar ≤768px), `AppShell` guna `MobileShell` + `BottomNav` untuk **PENGESAH,
+PELULUS dan PENYEMAK**. PENYEMAK ada tab Home · Dokumen · Profile (`/app/penyemak/home|dokumen|profile`).
+
+### Tangkapan ERP UPM (ERP-CAPTURE-01)
+
+`extension/erp-capture.js` berjalan dalam semua frame `https://erp.upm.edu.my/*` dan **baca sahaja**.
+Ia baca `input[id$="edReqNbr_text"]` (Ref. Nbr.), `input[id$="edEmployeeID_text"]` (Creator), dan
+baris pertama grid APPROVALS (header "Approved By" + "Status").
+
+```
+ERP frame ─ERP_CAPTURE─▶ service_worker (storage.session pending, sidePanel.open)
+                              │ port 'logkerja-sidepanel'
+                              ▼
+                         sidepanel.js ──LOGKERJA_ERP_CAPTURE──▶ PWA ErpCaptureHost
+                              ▲            ◀──LOGKERJA_READY───        │
+ERP frame ◀─ERP_RESULT── SW ◀─┘            ◀──LOGKERJA_ERP_RESULT──    ▼
+                                                            SubmissionModal (source='erp')
+```
+
+- PWA hanya terima mesej jika berada dalam iframe, `event.source === window.parent`, dan origin
+  `chrome-extension://`. Side panel hanya terima mesej dari origin PWA yang dibenarkan.
+- Semakan nombor rujukan guna RPC `check_reference_exists`. Keputusan ditentukan oleh
+  `resolveReferenceAction` (`src/features/documents/referenceCheck.ts`):
+  - **NEW** → daftar baharu (pilih Kategori)
+  - **RESUBMIT** → dokumen sendiri yang REJECTED/ON_HOLD → `documents_transition` RESUBMIT
+  - **BLOCKED** → info sahaja (PENDING_* perlu ditolak dahulu; LULUS perlu Admin set ON HOLD;
+    milik pengguna lain)
+- Ralat Edge Function dibaca melalui `src/lib/edgeError.ts`, jadi mesej sebenar sampai ke pengguna.
+
 ## Deploy & infra
 
 - **Vercel** untuk frontend; `vercel.json` rewrite SPA.

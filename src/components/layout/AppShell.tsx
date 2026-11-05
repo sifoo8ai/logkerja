@@ -7,6 +7,7 @@ import { getActiveRole, checkAndBootstrapProfile } from '../../lib/auth';
 import { ROLE_ROUTES } from '../../lib/roles';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import MobileShell from '../mobile/MobileShell';
+import ErpCaptureHost from '../erp/ErpCaptureHost';
 
 export const AppShell: React.FC = () => {
     const [loading, setLoading] = useState(true);
@@ -58,14 +59,19 @@ export const AppShell: React.FC = () => {
 
     const role = getActiveRole();
     const isCompact = useMediaQuery('(max-width: 768px)');
-    const isMobileMode = isCompact && (role === 'PENGESAH' || role === 'PELULUS');
+    const isMobileMode = isCompact && (role === 'PENGESAH' || role === 'PELULUS' || role === 'PENYEMAK');
 
     if (loading) {
         return <div className="min-h-screen flex items-center justify-center bg-gray-50">Loading App...</div>;
     }
 
     if (isMobileMode && role) {
-        return <MobileShell role={role} />;
+        return (
+            <>
+                <MobileShell role={role} />
+                <ErpCaptureHost />
+            </>
+        );
     }
 
     return (
@@ -77,6 +83,7 @@ export const AppShell: React.FC = () => {
                     <Outlet />
                 </main>
             </div>
+            <ErpCaptureHost />
         </div>
     );
 };
