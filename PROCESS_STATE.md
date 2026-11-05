@@ -27,6 +27,12 @@ _Kemas kini terakhir: 2026-11-05 — ERP-CAPTURE-01 (kod siap, menunggu deploy).
 - [ ] 5. UAT pada ERP sebenar: buka Requisition yang SUDAH di-approve → kad auto → "Sudah wujud".
   Kemudian uji approval sebenar seterusnya.
 
+### UX-DETAILS-01 (2026-11-05)
+- [x] Modal butiran Penyemak direka semula (2 tab, banner status, copy, Jejak Audit). Disemak
+  dengan harness pratonton dan data contoh; `npm run build` lulus.
+- [ ] Pertimbang guna reka bentuk sama untuk modal Pengesah/Pelulus/Admin. `documentDetailsFormat.ts`
+  boleh diguna semula. Pemilik pilih Penyemak sahaja buat masa ini.
+
 ### Perlu disahkan pada ERP sebenar
 - Selector `edReqNbr_text` / `edEmployeeID_text` diambil dari bookmarklet (terbukti berfungsi).
 - Pengesanan grid APPROVALS (header "Approved By" + "Status") belum diuji pada DOM ERP sebenar.

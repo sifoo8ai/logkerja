@@ -9,6 +9,17 @@ dirumus daripada mesej git commit dan `CONTEXT.md`.
 
 ## [Belum dikeluarkan]
 
+### UX-DETAILS-01 — Reka semula modal butiran dokumen Penyemak (Nov 2026)
+- `DocumentDetailsSlideOver` (desktop + side panel Penyemak) direka semula dengan:
+  - header: nombor rujukan + butang **Copy**, ✕, dan butang **Tutup** di footer
+  - **banner status** berlabel Bahasa Melayu, warna ikut skema status sistem
+  - 2 tab: **Butiran Dokumen** dan **Jejak Audit**, dengan chip bilangan aktiviti
+  - Pegawai tindakan dengan avatar inisial, Tarikh daftar / Dikemas kini, kotak "Tiada lampiran"
+  - "Aktiviti terkini" + pautan "Lihat semua X aktiviti" yang membuka tab Jejak Audit
+  - timeline dengan ikon lucide, label tindakan Bahasa Melayu, dan nama/unit pelaku dua baris
+- Format tarikh `05 Nov 2026` (`documentDetailsFormat.ts`).
+- Label hanya untuk paparan modal ini; tiada perubahan database, enum, atau modal role lain.
+
 ### ERP-CAPTURE-01 — Tangkapan Requisition ERP UPM → LogKerja (Nov 2026)
 
 #### Ditambah
