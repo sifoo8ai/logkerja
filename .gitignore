@@ -28,3 +28,6 @@ dist-ssr
 .env.local
 .vercel
 .env*
+
+# Supabase CLI cache (projek dipautkan, versi, pooler URL)
+supabase/.temp/
