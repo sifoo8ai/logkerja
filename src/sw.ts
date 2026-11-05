@@ -12,8 +12,9 @@ self.addEventListener('push', function (event: PushEvent) {
         const data = event.data.json()
         const options: NotificationOptions = {
             body: data.body,
-            icon: '/icon.svg',
-            badge: '/icon.svg',
+            // PNG — kebanyakan platform tidak menyokong SVG untuk ikon notifikasi
+            icon: '/icons/icon-192.png',
+            badge: '/icons/icon-192.png',
             // @ts-ignore
             vibrate: [100, 50, 100],
             data: {

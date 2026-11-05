@@ -9,6 +9,16 @@ dirumus daripada mesej git commit dan `CONTEXT.md`.
 
 ## [Belum dikeluarkan]
 
+### BRAND-01 — Logo & ikon rasmi LogKerja (Nov 2026)
+- Logo rasmi (`public/icon.svg`) menggantikan ikon placeholder untuk favicon, PWA dan push notification.
+- Ikon PNG dijana dari logo: `public/icons/icon-192.png`, `icon-512.png`, `icon-maskable-512.png`
+  (Android, logo dalam zon selamat) dan `apple-touch-icon.png` (iOS, 180px). Ikon extension
+  16/32/48/128 turut diganti.
+- Manifest PWA kini senaraikan ikon PNG + SVG. Notifikasi push guna PNG (SVG tidak disokong
+  kebanyakan platform).
+- Komponen `BrandLogo` dipaparkan di sebelah kiri tajuk "LogKerja" pada Topbar dan Sidebar desktop,
+  header side panel, dan halaman Login (menggantikan ikon perisai).
+
 ### UX-DETAILS-01 — Reka semula modal butiran dokumen Penyemak (Nov 2026)
 - `DocumentDetailsSlideOver` (desktop + side panel Penyemak) direka semula dengan:
   - header: nombor rujukan + butang **Copy**, ✕, dan butang **Tutup** di footer

@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Home, User, Menu, X, Settings } from 'lucide-react';
 import { getActiveRole } from '../../lib/auth';
 import { getDefaultRoute } from '../../lib/roles';
+import BrandLogo from './BrandLogo';
 
 export const Sidebar: React.FC = () => {
     const [isOpen, setIsOpen] = useState(true);
@@ -18,7 +19,10 @@ export const Sidebar: React.FC = () => {
     return (
         <div className={`bg-slate-900 text-white transition-all duration-300 ${isOpen ? 'w-64' : 'w-20'} flex flex-col min-h-screen`}>
             <div className="flex items-center justify-between p-4 border-b border-slate-700">
-                <h2 className={`font-bold text-xl overflow-hidden transition-all ${isOpen ? 'w-auto' : 'w-0 opacity-0'}`}>LogKerja</h2>
+                <div className={`flex items-center gap-2.5 overflow-hidden transition-all ${isOpen ? 'w-auto' : 'w-0 opacity-0'}`}>
+                    <BrandLogo className="w-8 h-8" />
+                    <h2 className="font-bold text-xl whitespace-nowrap">LogKerja</h2>
+                </div>
                 <button onClick={() => setIsOpen(!isOpen)} className="p-1 hover:bg-slate-800 rounded">
                     {isOpen ? <X size={20} /> : <Menu size={20} />}
                 </button>

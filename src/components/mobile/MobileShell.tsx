@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import BottomNav from './BottomNav';
+import BrandLogo from '../layout/BrandLogo';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabaseClient';
 import { fetchPengesahPendingCount } from '../../features/documents/pengesahApi';
@@ -65,7 +66,8 @@ export const MobileShell: React.FC<{ role: string }> = ({ role }) => {
     return (
         <div className="flex flex-col h-[100dvh] bg-[#f8f9fc] font-sans overflow-hidden relative">
 
-            <header className="bg-[#f8f9fc] pt-6 pb-4 px-6 text-center border-b border-gray-100 flex items-center justify-center shrink-0 z-10 transition-all duration-300">
+            <header className="bg-[#f8f9fc] pt-6 pb-4 px-6 text-center border-b border-gray-100 flex items-center justify-center gap-2 shrink-0 z-10 transition-all duration-300">
+                <BrandLogo className="w-6 h-6" />
                 <h1 className="text-gray-400 font-extrabold tracking-[0.2em] uppercase text-xs sm:text-sm shadow-sm opacity-80">
                     LogKerja {formattedRole}
                 </h1>

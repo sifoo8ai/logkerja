@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import BrandLogo from '../components/layout/BrandLogo';
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
@@ -108,9 +109,7 @@ const Login: React.FC = () => {
 
                 {/* Logo Area */}
                 <div className="mb-6 flex justify-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl shadow-lg shadow-blue-500/30 flex items-center justify-center transform transition-transform hover:scale-105 duration-300">
-                        <ShieldCheck className="text-white w-8 h-8" strokeWidth={2.5} />
-                    </div>
+                    <BrandLogo className="w-16 h-16 drop-shadow-[0_10px_15px_rgba(59,130,246,0.3)] transform transition-transform hover:scale-105 duration-300" decorative={false} />
                 </div>
 
                 {/* Typography */}
