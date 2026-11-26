@@ -1,10 +1,20 @@
 /// <reference lib="webworker" />
-import { precacheAndRoute } from 'workbox-precaching'
+import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching'
 
 declare let self: ServiceWorkerGlobalScope
 
 // Precache the app shell via workbox
 precacheAndRoute(self.__WB_MANIFEST || [])
+cleanupOutdatedCaches()
+
+// SW-UPDATE-01: versi baharu terus aktif & ambil alih semua tab/side panel, tanpa tunggu semua ditutup.
+// Halaman yang sedang terbuka TIDAK di-reload automatik — refresh biasa sudah memuatkan versi terkini.
+self.addEventListener('install', () => {
+    self.skipWaiting()
+})
+self.addEventListener('activate', (event: ExtendableEvent) => {
+    event.waitUntil(self.clients.claim())
+})
 
 // Handle Push notifications
 self.addEventListener('push', function (event: PushEvent) {

@@ -6,6 +6,7 @@ import {
     submitNewDocument,
     resubmitDocument,
     checkReferenceExists,
+    fetchDocumentCategory,
 } from '../../features/documents/penyemakApi';
 import { uploadDocumentAttachment } from '../../features/attachments/attachmentsApi';
 import { resolveReferenceAction, ReferenceAction } from '../../features/documents/referenceCheck';
@@ -57,6 +58,9 @@ export const SubmissionModal: React.FC<SubmissionModalProps> = ({
     const [checkState, setCheckState] = useState<CheckState>('idle');
     const [action, setAction] = useState<ReferenceAction | null>(null);
     const [doneWarning, setDoneWarning] = useState<string | null>(null);
+    // Mod Hantar Semula: kategori semasa dokumen + pilihan kategori baharu (CATEGORY-RESUBMIT-01)
+    const [currentCategory, setCurrentCategory] = useState<{ id: string; name: string } | null>(null);
+    const [resubmitCategoryId, setResubmitCategoryId] = useState('');
 
     const checkSeq = useRef(0);
     const reported = useRef(false);
@@ -81,6 +85,8 @@ export const SubmissionModal: React.FC<SubmissionModalProps> = ({
             setCheckState('idle');
             setAction(null);
             setDoneWarning(null);
+            setCurrentCategory(null);
+            setResubmitCategoryId('');
             reported.current = false;
         }
     }, [isOpen, initialRefNo, initialDescription]);
@@ -115,6 +121,23 @@ export const SubmissionModal: React.FC<SubmissionModalProps> = ({
 
         return () => clearTimeout(timer);
     }, [refNo, isOpen, source, initialRefNo]);
+
+    // Mod Hantar Semula: muatkan kategori semasa dokumen sebagai pilihan lalai
+    const resubmitDocId = action?.kind === 'RESUBMIT' ? action.docId : null;
+    useEffect(() => {
+        setCurrentCategory(null);
+        setResubmitCategoryId('');
+        if (!isOpen || !resubmitDocId) return;
+        let cancelled = false;
+        fetchDocumentCategory(resubmitDocId)
+            .then((cat) => {
+                if (cancelled || !cat) return;
+                setCurrentCategory(cat);
+                setResubmitCategoryId(cat.id);
+            })
+            .catch((err) => console.error('Gagal memuat kategori dokumen:', err));
+        return () => { cancelled = true; };
+    }, [isOpen, resubmitDocId]);
 
     // Laporkan ke extension bila tangkapan ERP tidak boleh diteruskan
     useEffect(() => {
@@ -179,7 +202,10 @@ export const SubmissionModal: React.FC<SubmissionModalProps> = ({
         setLoading(true);
         try {
             if (mode === 'RESUBMIT' && action?.docId) {
-                await resubmitDocument(action.docId, note.trim() || undefined);
+                const changedCategory = resubmitCategoryId && currentCategory && resubmitCategoryId !== currentCategory.id
+                    ? resubmitCategoryId
+                    : undefined;
+                await resubmitDocument(action.docId, note.trim() || undefined, changedCategory);
                 const warn = await uploadIfAny(action.docId);
                 finishSuccess('RESUBMITTED', warn);
             } else {
@@ -290,6 +316,31 @@ export const SubmissionModal: React.FC<SubmissionModalProps> = ({
                                     </div>
                                 </>
                             ) : (
+                                <>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Kategori</label>
+                                    <select
+                                        value={resubmitCategoryId}
+                                        onChange={e => setResubmitCategoryId(e.target.value)}
+                                        className="w-full border border-slate-300 rounded px-3 py-2 text-sm bg-white focus:ring-blue-500 focus:border-blue-500 disabled:bg-slate-50"
+                                        disabled={!currentCategory}
+                                    >
+                                        {!currentCategory && <option value="">Memuatkan kategori...</option>}
+                                        {/* Kategori semasa mungkin sudah tidak aktif — kekalkan sebagai pilihan */}
+                                        {currentCategory && !categories.some(c => c.id === currentCategory.id) && (
+                                            <option value={currentCategory.id}>{currentCategory.name}</option>
+                                        )}
+                                        {currentCategory && categories.map(cat => (
+                                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                        ))}
+                                    </select>
+                                    <p className={`mt-1 text-xs ${currentCategory && resubmitCategoryId !== currentCategory.id ? 'text-amber-700' : 'text-slate-500'}`}>
+                                        {currentCategory && resubmitCategoryId !== currentCategory.id
+                                            ? 'Kategori akan ditukar. Dokumen dihantar kepada pengesah & pelulus kategori baharu.'
+                                            : 'Tukar jika kategori asal tersilap. Pengesah & Pelulus ditetapkan mengikut routing kategori.'}
+                                    </p>
+                                </div>
+
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Nota Hantar Semula</label>
                                     <textarea
@@ -299,8 +350,8 @@ export const SubmissionModal: React.FC<SubmissionModalProps> = ({
                                         rows={3}
                                         placeholder="Contoh: Pembetulan telah dibuat dalam ERP (pilihan)"
                                     ></textarea>
-                                    <p className="mt-1 text-xs text-slate-500">Kategori kekal sama. Pengesah & Pelulus akan ditetapkan semula mengikut routing kategori.</p>
                                 </div>
+                                </>
                             )}
 
                             {!isBlocked && (

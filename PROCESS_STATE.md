@@ -48,7 +48,9 @@ _Kemas kini terakhir: 2026-11-05 — ERP-CAPTURE-01 (kod siap, menunggu deploy).
 - [x] 3. Push PWA → Vercel. (Urutan selamat: frontend lama/baharu serasi dengan function lama/baharu.)
 - [ ] 4. UAT: dokumen ON_HOLD/DITOLAK → tukar kategori → Hantar Semula → pengesah baharu terima;
   Jejak Audit papar "[Kategori ditukar: A → B]".
-- Di luar skop: mod RESUBMIT dalam `SubmissionModal` (manual/ERP) masih tanpa pilihan kategori.
+- [x] Susulan: dropdown Kategori turut ditambah dalam mod RESUBMIT `SubmissionModal` (popup ERP/manual).
+- [x] SW-UPDATE-01: service worker `skipWaiting` + `clients.claim` — side panel tak lagi tersangkut pada
+  versi lama. Deploy pertama ini masih perlu tutup semua tab/side panel sekali (SW lama belum ada fix).
 
 ### Perlu disahkan pada ERP sebenar
 - Selector `edReqNbr_text` / `edEmployeeID_text` diambil dari bookmarklet (terbukti berfungsi).

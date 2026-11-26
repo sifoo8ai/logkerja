@@ -55,6 +55,18 @@ export async function fetchActiveCategories() {
     return data;
 }
 
+/** Kategori semasa dokumen milik sendiri (untuk mod Hantar Semula). */
+export async function fetchDocumentCategory(docId: string): Promise<{ id: string; name: string } | null> {
+    const { data, error } = await supabase
+        .from('documents')
+        .select('category:document_categories(id, name)')
+        .eq('id', docId)
+        .single();
+
+    if (error) throw error;
+    return ((data as any)?.category as { id: string; name: string } | null) ?? null;
+}
+
 export async function fetchPenyemakDocuments(userId: string): Promise<DocumentRow[]> {
     const { data, error } = await supabase
         .from('documents')

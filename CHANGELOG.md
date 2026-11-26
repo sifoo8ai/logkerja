@@ -9,9 +9,16 @@ dirumus daripada mesej git commit dan `CONTEXT.md`.
 
 ## [Belum dikeluarkan]
 
+### SW-UPDATE-01 — Versi PWA baharu terus aktif (Nov 2026)
+- Service worker kini `skipWaiting` + `clients.claim` + `cleanupOutdatedCaches`. Sebelum ini versi
+  baharu menunggu sehingga **semua** tab/side panel LogKerja ditutup, jadi side panel extension kekal
+  pada versi lama. Tiada auto-reload: refresh biasa (atau butang refresh side panel) memuatkan versi terkini.
+- App semak kemas kini service worker setiap 30 minit dan bila tab kembali aktif.
+
 ### CATEGORY-RESUBMIT-01 — Betulkan kategori semasa Hantar Semula (Nov 2026)
 - Blok **Hantar Semula** dalam modal butiran Penyemak (dokumen DITOLAK / ON_HOLD) kini ada dropdown
-  **Kategori**, diisi dengan kategori semasa. Jika ditukar, dokumen dihantar kepada pengesah & pelulus
+  **Kategori**, diisi dengan kategori semasa. Begitu juga borang **Hantar Semula Dokumen**
+  (`SubmissionModal`, dibuka dari tangkapan ERP / butang Daftar) bila nombor rujukan sudah wujud. Jika ditukar, dokumen dihantar kepada pengesah & pelulus
   ikut routing kategori baharu.
 - RPC baharu `resubmit_document_with_category` (SECURITY DEFINER, satu transaksi): tukar kategori,
   kira semula routing, status → PENDING_VERIFIER, audit `RESUBMIT` dengan nota
