@@ -81,6 +81,8 @@ stateDiagram-v2
 - Klien memanggil `documents_transition` dengan body `{ doc_id, action, note }` di mana `action` ialah
   `APPROVE` / `REJECT` / `RESUBMIT` / `SET_ON_HOLD`. Edge Function memanggil RPC yang memetakan ke
   jenis tindakan sebenar (`APPROVE_VERIFIER`, `AUTO_FINALIZE`, dll).
+  `RESUBMIT` boleh disertakan `category_id` (pilihan) → RPC `resubmit_document_with_category`
+  (tukar kategori + hantar semula secara atomik).
 
 ## Edge Functions (Deno)
 

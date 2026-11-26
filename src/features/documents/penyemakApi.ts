@@ -75,9 +75,13 @@ export async function submitNewDocument(refNo: string, categoryId: string, descr
     return data.docId as string;
 }
 
-export async function resubmitDocument(docId: string, note?: string) {
+/**
+ * Hantar semula dokumen REJECTED/ON_HOLD. Jika `newCategoryId` diberi (kategori ditukar),
+ * Edge Function guna RPC `resubmit_document_with_category` — routing pengesah/pelulus ikut kategori baharu.
+ */
+export async function resubmitDocument(docId: string, note?: string, newCategoryId?: string) {
     const { data, error } = await supabase.functions.invoke('documents_transition', {
-        body: { doc_id: docId, action: 'RESUBMIT', note }
+        body: { doc_id: docId, action: 'RESUBMIT', note, ...(newCategoryId ? { category_id: newCategoryId } : {}) }
     });
 
     await assertEdgeOk(error, data, 'Gagal menghantar semula dokumen.');

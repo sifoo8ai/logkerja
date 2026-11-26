@@ -137,6 +137,7 @@ Metadata fail; fail sebenar dalam Storage bucket privat `document-attachments`.
 | `is_active_user` | `() → boolean` | Semak `profiles.is_active` untuk `auth.uid()` |
 | `get_routing_for_category` | `(cat_id uuid) → record` | Pulang verifier/approver lalai kategori |
 | `check_reference_exists` | `(p_ref_no text) → table(ref_exists, is_own, doc_id, current_status, pending_actor_name, updated_at)` | Semak kewujudan nombor rujukan **merentasi semua pengguna** (RLS biasa sembunyikan dokumen orang lain). Padanan `upper(trim())`. `doc_id` + `pending_actor_name` hanya diisi untuk dokumen milik sendiri. Hanya `authenticated` + pengguna aktif. Klien panggil terus melalui `supabase.rpc()` |
+| `resubmit_document_with_category` | `(p_doc_id uuid, p_cat_id uuid, p_note text) → void` | Hantar semula dokumen REJECTED/ON_HOLD milik sendiri (PENYEMAK) **dengan kategori baharu**, dalam satu transaksi: tukar `category_id`, kira semula verifier/approver dari `category_routing`, status → PENDING_VERIFIER, audit `RESUBMIT` dengan nota `[Kategori ditukar: A → B]`. Dipanggil oleh `documents_transition` bila body ada `category_id` |
 | `set_updated_at` | trigger | Kemas `updated_at` pada UPDATE |
 
 Klien memanggil RPC tulis (`create_document`, `transition_document`) secara **tidak langsung**
@@ -160,4 +161,4 @@ Semua dalam `supabase/migrations/`:
 `add_profiles_email` → `logkerja_v2_storage` → `grant_update_email` → `logkerja_admin_update` →
 `logkerja_v2_optimistic_locking_and_indexes` → `fix_category_routing_grants` → `fix_user_roles_grants` →
 `fix_document_categories_grants` → `fix_category_routing_grants2` → `fix_admin_delete_documents` →
-`check_reference_exists` (Nov 2026).
+`check_reference_exists` (Nov 2026) → `resubmit_with_category` (Nov 2026).

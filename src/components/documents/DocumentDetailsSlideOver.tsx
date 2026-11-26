@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, ExternalLink, Loader2, FileText, Send, Copy, Check, Paperclip, ArrowRight } from 'lucide-react';
 import { getSignedViewUrl } from '../../features/attachments/attachmentsApi';
-import { fetchDocumentActions, resubmitDocument } from '../../features/documents/penyemakApi';
+import { fetchActiveCategories, fetchDocumentActions, resubmitDocument } from '../../features/documents/penyemakApi';
 import { ImageDropzone } from '../attachments/ImageDropzone';
 import { uploadDocumentAttachment } from '../../features/attachments/attachmentsApi';
 import { actionStyle, formatTarikh, initials, splitActorName, statusBanner } from './documentDetailsFormat';
@@ -29,13 +29,21 @@ export const DocumentDetailsSlideOver: React.FC<DocumentDetailsSlideOverProps> =
     const [newFile, setNewFile] = useState<File | null>(null);
     const [isResubmitting, setIsResubmitting] = useState(false);
     const [error, setError] = useState('');
+    const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+    const [resubmitCategoryId, setResubmitCategoryId] = useState('');
 
     useEffect(() => {
         if (isOpen && document) {
             setActiveTab('butiran');
             setCopied(false);
             setError('');
+            setResubmitCategoryId(document.category?.id || '');
             loadDetails();
+            if (document.current_status === 'REJECTED' || document.current_status === 'ON_HOLD') {
+                fetchActiveCategories()
+                    .then((cats) => setCategories(cats || []))
+                    .catch((err) => console.error('Gagal memuat kategori:', err));
+            }
         }
     }, [isOpen, document]);
 
@@ -87,7 +95,11 @@ export const DocumentDetailsSlideOver: React.FC<DocumentDetailsSlideOverProps> =
         setError('');
 
         try {
-            await resubmitDocument(document.id, resubmitNote);
+            const currentCategoryId = document.category?.id || '';
+            const changedCategory = resubmitCategoryId && resubmitCategoryId !== currentCategoryId
+                ? resubmitCategoryId
+                : undefined;
+            await resubmitDocument(document.id, resubmitNote, changedCategory);
             if (newFile) {
                 await uploadDocumentAttachment(document.id, newFile);
             }
@@ -103,6 +115,7 @@ export const DocumentDetailsSlideOver: React.FC<DocumentDetailsSlideOverProps> =
     if (!isOpen || !document) return null;
 
     const status: string = document.current_status;
+    const categoryChanged = !!resubmitCategoryId && resubmitCategoryId !== (document.category?.id || '');
     const banner = statusBanner(status);
     const canResubmit = ['REJECTED', 'ON_HOLD'].includes(status);
     const isPending = status === 'PENDING_VERIFIER' || status === 'PENDING_APPROVER';
@@ -246,6 +259,28 @@ export const DocumentDetailsSlideOver: React.FC<DocumentDetailsSlideOverProps> =
                                         {error && <p className="text-xs text-red-600 mb-3">{error}</p>}
 
                                         <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-xs font-medium text-slate-700 mb-1">Kategori</label>
+                                                <select
+                                                    value={resubmitCategoryId}
+                                                    onChange={e => setResubmitCategoryId(e.target.value)}
+                                                    className="w-full text-sm border border-slate-300 rounded-md p-2 bg-white focus:ring-blue-500 focus:border-blue-500"
+                                                >
+                                                    {/* Kategori semasa mungkin sudah tidak aktif — kekalkan sebagai pilihan */}
+                                                    {document.category && !categories.some(c => c.id === document.category.id) && (
+                                                        <option value={document.category.id}>{document.category.name}</option>
+                                                    )}
+                                                    {categories.map(c => (
+                                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                                    ))}
+                                                </select>
+                                                {categoryChanged && (
+                                                    <p className="text-xs text-amber-700 mt-1">
+                                                        Kategori akan ditukar. Dokumen dihantar kepada pengesah &amp; pelulus kategori baharu.
+                                                    </p>
+                                                )}
+                                            </div>
+
                                             <div>
                                                 <label className="block text-xs font-medium text-slate-700 mb-1">Nota Pembetulan (Pilihan)</label>
                                                 <textarea

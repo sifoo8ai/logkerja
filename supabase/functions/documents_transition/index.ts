@@ -62,18 +62,25 @@ Deno.serve(async (req) => {
         // Rate limiting removed to support frontend bulk actions (Promise.all)
         // DB constraints (current_status check) already prevent double-transitions.
 
-        const { doc_id, action, note } = await req.json();
+        const { doc_id, action, note, category_id } = await req.json();
 
         if (!doc_id || !action) {
             throw new Error('Missing required arguments untuk transition_document');
         }
 
-        // Call RPC transition_document
-        const { error: dbError } = await supabaseUser.rpc('transition_document', {
-            p_doc_id: doc_id,
-            p_action: action,
-            p_note: note || null
-        });
+        // RESUBMIT + kategori baharu (CATEGORY-RESUBMIT-01) → RPC atomik tukar kategori & hantar semula.
+        // Semua tindakan lain kekal melalui transition_document.
+        const { error: dbError } = (action === 'RESUBMIT' && category_id)
+            ? await supabaseUser.rpc('resubmit_document_with_category', {
+                p_doc_id: doc_id,
+                p_cat_id: category_id,
+                p_note: note || null
+            })
+            : await supabaseUser.rpc('transition_document', {
+                p_doc_id: doc_id,
+                p_action: action,
+                p_note: note || null
+            });
 
         if (dbError) throw dbError;
 

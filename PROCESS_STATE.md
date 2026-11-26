@@ -40,6 +40,16 @@ _Kemas kini terakhir: 2026-11-05 — ERP-CAPTURE-01 (kod siap, menunggu deploy).
 - [ ] Uji tukar role dengan akaun yang ada lebih dari satu role (perlu login sebenar).
 - [ ] Pertimbang tukar role dalam side panel/mobile (`MobileShell` tiada topbar).
 
+### CATEGORY-RESUBMIT-01 (2026-11-26) — tukar kategori semasa Hantar Semula
+- [x] Kod siap (migration, `documents_transition`, UI modal Penyemak); `npm run build` lulus.
+  Dry-run `db push --remote`: hanya migration ini menunggu.
+- [x] 1. (2026-11-26) `npx supabase db push --remote` (migration `20261126120000_resubmit_with_category.sql`).
+- [x] 2. (2026-11-26) `npx supabase functions deploy documents_transition --no-verify-jwt --remote=csimvhrkwpoeyncqxvus --yes`.
+- [x] 3. Push PWA → Vercel. (Urutan selamat: frontend lama/baharu serasi dengan function lama/baharu.)
+- [ ] 4. UAT: dokumen ON_HOLD/DITOLAK → tukar kategori → Hantar Semula → pengesah baharu terima;
+  Jejak Audit papar "[Kategori ditukar: A → B]".
+- Di luar skop: mod RESUBMIT dalam `SubmissionModal` (manual/ERP) masih tanpa pilihan kategori.
+
 ### Perlu disahkan pada ERP sebenar
 - Selector `edReqNbr_text` / `edEmployeeID_text` diambil dari bookmarklet (terbukti berfungsi).
 - Pengesanan grid APPROVALS (header "Approved By" + "Status") belum diuji pada DOM ERP sebenar.

@@ -9,6 +9,16 @@ dirumus daripada mesej git commit dan `CONTEXT.md`.
 
 ## [Belum dikeluarkan]
 
+### CATEGORY-RESUBMIT-01 — Betulkan kategori semasa Hantar Semula (Nov 2026)
+- Blok **Hantar Semula** dalam modal butiran Penyemak (dokumen DITOLAK / ON_HOLD) kini ada dropdown
+  **Kategori**, diisi dengan kategori semasa. Jika ditukar, dokumen dihantar kepada pengesah & pelulus
+  ikut routing kategori baharu.
+- RPC baharu `resubmit_document_with_category` (SECURITY DEFINER, satu transaksi): tukar kategori,
+  kira semula routing, status → PENDING_VERIFIER, audit `RESUBMIT` dengan nota
+  `[Kategori ditukar: A → B]`. Migration `20261126120000_resubmit_with_category.sql`.
+- `documents_transition`: `RESUBMIT` + `category_id` → RPC baharu. Tanpa `category_id`, laluan lama
+  (`transition_document`) tidak berubah. Tiada perubahan enum/jadual/RLS.
+
 ### UI-SHELL-01 — Topbar, menu role, sidebar & filter Kategori (Nov 2026)
 - Topbar desktop (semua role) papar nama page tebal biru + "Sistem Notifikasi Tindakan Berpusat",
   menggantikan logo dan chip role. Pautan Profile dibuang (masih ada di sidebar).

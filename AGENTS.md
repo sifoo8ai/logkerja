@@ -95,7 +95,7 @@ Klien memanggil melalui `supabase.functions.invoke('<nama>', { body })` dari `sr
 | Function | Guna |
 | --- | --- |
 | `documents_create` | Cipta dokumen (panggil RPC `create_document`) + cetus push ke verifier |
-| `documents_transition` | Semua peralihan status; body `{ doc_id, action, note }` (action = `APPROVE`/`REJECT`/`RESUBMIT`/`SET_ON_HOLD`) |
+| `documents_transition` | Semua peralihan status; body `{ doc_id, action, note }` (action = `APPROVE`/`REJECT`/`RESUBMIT`/`SET_ON_HOLD`); `RESUBMIT` boleh tambah `category_id` untuk tukar kategori |
 | `attachments_upload_init` | Mulakan muat naik selamat ke bucket privat |
 | `attachments_register` | Daftar metadata lampiran selepas muat naik |
 | `attachments_signed_url` | Jana signed URL (semak peranan) untuk lihat lampiran |
