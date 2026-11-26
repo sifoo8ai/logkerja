@@ -122,6 +122,8 @@ tulis DB privileged guna **service-role key**. (Lihat sejarah BUGFIX-JWT-EDGE da
 - **Auth rapuh dengan sengaja:** login guna popup + `postMessage('popup-login-success')` untuk
   elak 403 iframe/side-panel Chrome. Dashboard guna `getSession` (bukan `getUser`) untuk elak
   kick SIGNED_OUT. Jangan ubah tanpa uji dalam extension side panel.
+  Log keluar guna `scope: 'local'` (jangan tukar ke global — ia batalkan sesi side panel). Panggil
+  Edge Function melalui `invokeEdge()` (`src/lib/edgeError.ts`), bukan `supabase.functions.invoke` terus.
 - **Commit/push hanya bila pemilik minta.** Pastikan `npm run build` lulus dahulu.
 - **Deployment Vercel (Hobby) — periksa akaun GitHub push sebelum push.** Deployment pernah berhenti
   (stale) selepas commit `31ca0db`. Punca bukan email author (kekal `sifoo8.ai@gmail.com` sepanjang

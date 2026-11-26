@@ -46,3 +46,34 @@ export async function assertEdgeOk(error: any, data: any, fallback: string): Pro
     if (error) throw await extractEdgeError(error, fallback);
     if (data?.error) throw new EdgeFunctionError(data.error, data.code);
 }
+
+export const SESSION_EXPIRED_MESSAGE = 'Sesi tamat. Sila log masuk semula.';
+
+function isUnauthorized(error: any): boolean {
+    return !!error && error.context && typeof error.context.status === 'number' && error.context.status === 401;
+}
+
+/**
+ * Panggil Edge Function dengan pemulihan sesi (AUTH-SESSION-01).
+ * Jika respons 401 (token tamat / sesi tidak sah), cuba `refreshSession()` sekali dan ulang panggilan.
+ * Selamat diulang: semua Edge Function semak auth dahulu sebelum buat apa-apa.
+ * Jika masih 401, lempar mesej jelas "Sesi tamat. Sila log masuk semula." (code INVALID_JWT).
+ */
+export async function invokeEdge<T = any>(name: string, body: Record<string, unknown>, fallback: string): Promise<T> {
+    const { supabase } = await import('./supabaseClient');
+
+    let { data, error } = await supabase.functions.invoke(name, { body });
+
+    if (isUnauthorized(error)) {
+        const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
+        if (!refreshError && refreshed?.session) {
+            ({ data, error } = await supabase.functions.invoke(name, { body }));
+        }
+        if (isUnauthorized(error)) {
+            throw new EdgeFunctionError(SESSION_EXPIRED_MESSAGE, 'INVALID_JWT', 401);
+        }
+    }
+
+    await assertEdgeOk(error, data, fallback);
+    return data as T;
+}

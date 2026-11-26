@@ -1,4 +1,5 @@
 import { supabase } from '../../lib/supabaseClient';
+import { invokeEdge } from '../../lib/edgeError';
 import { DocumentRowExtended } from './pengesahApi'; // reuse type
 
 export async function fetchPelulusDocuments(userId: string): Promise<DocumentRowExtended[]> {
@@ -43,46 +44,14 @@ export async function fetchPelulusHistory(userId: string) {
     return data;
 }
 
-async function extractErrorMsg(error: any) {
-    if (!error) return null;
-    console.error('documents_transition error', error);
-    try {
-        if (error.context && typeof error.context.json === 'function') {
-            const body = await error.context.json();
-            if (body && body.error) return body.error;
-        }
-    } catch (e) {
-        // ignore JSON parse error
-    }
-    return error.message || 'Ralat tidak diketahui';
-}
-
 export async function approveDocumentAsPelulus(docId: string, note?: string) {
-    const { data, error } = await supabase.functions.invoke('documents_transition', {
-        body: { doc_id: docId, action: 'APPROVE', note: note || 'Diluluskan oleh pelulus' }
-    });
-
-    if (error) {
-        throw new Error(await extractErrorMsg(error) || 'Gagal meluluskan dokumen');
-    }
-    if (data?.error) {
-        throw new Error(data.error);
-    }
-
-    return data;
+    return invokeEdge('documents_transition',
+        { doc_id: docId, action: 'APPROVE', note: note || 'Diluluskan oleh pelulus' },
+        'Gagal meluluskan dokumen');
 }
 
 export async function rejectDocumentAsPelulus(docId: string, note: string) {
-    const { data, error } = await supabase.functions.invoke('documents_transition', {
-        body: { doc_id: docId, action: 'REJECT', note }
-    });
-
-    if (error) {
-        throw new Error(await extractErrorMsg(error) || 'Gagal menolak dokumen');
-    }
-    if (data?.error) {
-        throw new Error(data.error);
-    }
-
-    return data;
+    return invokeEdge('documents_transition',
+        { doc_id: docId, action: 'REJECT', note },
+        'Gagal menolak dokumen');
 }

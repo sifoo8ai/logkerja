@@ -1,5 +1,5 @@
 import { supabase } from '../../lib/supabaseClient';
-import { assertEdgeOk } from '../../lib/edgeError';
+import { invokeEdge } from '../../lib/edgeError';
 
 export interface DocumentRow {
     id: string;
@@ -79,11 +79,9 @@ export async function fetchPenyemakDocuments(userId: string): Promise<DocumentRo
 }
 
 export async function submitNewDocument(refNo: string, categoryId: string, description: string) {
-    const { data, error } = await supabase.functions.invoke('documents_create', {
-        body: { ref_no: refNo.trim(), cat_id: categoryId, desc: description }
-    });
-
-    await assertEdgeOk(error, data, 'Gagal mendaftar dokumen.');
+    const data = await invokeEdge('documents_create',
+        { ref_no: refNo.trim(), cat_id: categoryId, desc: description },
+        'Gagal mendaftar dokumen.');
     return data.docId as string;
 }
 
@@ -92,12 +90,9 @@ export async function submitNewDocument(refNo: string, categoryId: string, descr
  * Edge Function guna RPC `resubmit_document_with_category` — routing pengesah/pelulus ikut kategori baharu.
  */
 export async function resubmitDocument(docId: string, note?: string, newCategoryId?: string) {
-    const { data, error } = await supabase.functions.invoke('documents_transition', {
-        body: { doc_id: docId, action: 'RESUBMIT', note, ...(newCategoryId ? { category_id: newCategoryId } : {}) }
-    });
-
-    await assertEdgeOk(error, data, 'Gagal menghantar semula dokumen.');
-    return data;
+    return invokeEdge('documents_transition',
+        { doc_id: docId, action: 'RESUBMIT', note, ...(newCategoryId ? { category_id: newCategoryId } : {}) },
+        'Gagal menghantar semula dokumen.');
 }
 
 export interface ReferenceCheckResult {

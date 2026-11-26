@@ -80,6 +80,8 @@ export function clearActiveRole() {
 }
 
 export async function signOut() {
-    await supabase.auth.signOut();
+    // AUTH-SESSION-01: 'local' — tamatkan sesi pada tab/peranti ini sahaja. Lalai Supabase ('global')
+    // turut membatalkan sesi side panel extension & peranti lain, menyebabkan ralat "Invalid JWT" di sana.
+    await supabase.auth.signOut({ scope: 'local' });
     clearActiveRole();
 }

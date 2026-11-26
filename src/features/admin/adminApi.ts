@@ -1,4 +1,5 @@
 import { supabase } from '../../lib/supabaseClient';
+import { invokeEdge } from '../../lib/edgeError';
 
 export async function fetchAllDocuments() {
     const { data, error } = await supabase
@@ -17,15 +18,9 @@ export async function fetchAllDocuments() {
 }
 
 export async function setDocumentOnHold(docId: string, note: string) {
-    const { data, error } = await supabase.functions.invoke('documents_transition', {
-        body: { doc_id: docId, action: 'SET_ON_HOLD', note }
-    });
-
-    if (error || data?.error) {
-        throw new Error(error?.message || data?.error || 'Failed to set document ON_HOLD');
-    }
-
-    return data;
+    return invokeEdge('documents_transition',
+        { doc_id: docId, action: 'SET_ON_HOLD', note },
+        'Gagal menahan dokumen (ON_HOLD).');
 }
 
 export async function updateDocumentCategory(docId: string, categoryId: string) {

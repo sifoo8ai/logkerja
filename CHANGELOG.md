@@ -9,6 +9,14 @@ dirumus daripada mesej git commit dan `CONTEXT.md`.
 
 ## [Belum dikeluarkan]
 
+### AUTH-SESSION-01 — Sesi side panel tidak lagi terbatal & pemulihan 401 (Nov 2026)
+- **Log keluar setempat**: `signOut()` guna `scope: 'local'`. Sebelum ini Log keluar di satu tab
+  membatalkan sesi di semua tempat (termasuk side panel extension), menyebabkan "Invalid JWT".
+- Helper `invokeEdge()` (`src/lib/edgeError.ts`) untuk semua panggilan Edge Function (Penyemak,
+  Pengesah, Pelulus, Admin, lampiran): jika 401, cuba `refreshSession()` sekali dan ulang; jika masih
+  gagal, papar "Sesi tamat. Sila log masuk semula." Pengesah/Pelulus/Admin turut dapat mesej ralat
+  sebenar daripada respons (bukan mesej generik).
+
 ### SW-UPDATE-01 — Versi PWA baharu terus aktif (Nov 2026)
 - Service worker kini `skipWaiting` + `clients.claim` + `cleanupOutdatedCaches`. Sebelum ini versi
   baharu menunggu sehingga **semua** tab/side panel LogKerja ditutup, jadi side panel extension kekal

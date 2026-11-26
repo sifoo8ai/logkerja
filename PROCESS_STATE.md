@@ -52,6 +52,11 @@ _Kemas kini terakhir: 2026-11-05 — ERP-CAPTURE-01 (kod siap, menunggu deploy).
 - [x] SW-UPDATE-01: service worker `skipWaiting` + `clients.claim` — side panel tak lagi tersangkut pada
   versi lama. Deploy pertama ini masih perlu tutup semua tab/side panel sekali (SW lama belum ada fix).
 
+### AUTH-SESSION-01 (2026-11-26)
+- [x] Log keluar `scope: 'local'` + `invokeEdge()` (refresh sekali bila 401, mesej "Sesi tamat").
+  Diuji: tanpa sesi → mesej jelas, tiada ulangan. Laluan refresh-berjaya belum diuji (perlu sesi sebenar).
+- [ ] UAT: Log keluar di tab desktop → side panel masih boleh Hantar Semula / lulus tanpa login semula.
+
 ### Perlu disahkan pada ERP sebenar
 - Selector `edReqNbr_text` / `edEmployeeID_text` diambil dari bookmarklet (terbukti berfungsi).
 - Pengesanan grid APPROVALS (header "Approved By" + "Status") belum diuji pada DOM ERP sebenar.
